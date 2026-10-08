@@ -1,4 +1,5 @@
 {
-  "version": "0.6.0",
-  "target": "951157a2ccd1b159d3c0bde6520b0ec177bdfecd"
+  "version": "0.7.0-dev.1",
+  "target": "64ea6e321765e8300e7bad5af19627ac9634c519",
+  "prerelease": true
 }
