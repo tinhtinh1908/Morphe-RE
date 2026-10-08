@@ -1,3 +1,10 @@
+## 0.7.0-dev.2
+
+- Thêm bản vá native riêng cho Zalo 26.08.01 ARM64 từ zeldrisho/morphe-patches (GPL v3); chọn độc lập với microG.
+- Chấp nhận APK đã vá các vị trí native; vẫn kiểm tra toàn bộ vị trí trước khi ghi.
+- Chuyển toàn bộ mô tả bản vá sang tiếng Việt.
+- Đính kèm giấy phép và nguồn trong MPP. Chưa kiểm thử khởi động trên thiết bị.
+
 # Changelog
 
 ## 0.7.0-dev.1

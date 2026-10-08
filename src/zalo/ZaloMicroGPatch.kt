@@ -39,7 +39,7 @@ private val zaloManifest = resourcePatch {
 
 val zaloMicroGSupport = bytecodePatch(
     name = "Zalo microG FCM support",
-    description = "Zalo 26.08.01: route FCM, isolate its token store and retry the existing logged-in registration flow without UI.",
+    description = "Zalo 26.08.01: chuyển FCM sang MicroG-RE, tách bộ nhớ token và thử lại luồng đăng ký sẵn có khi đã đăng nhập.",
     default = false,
 ) {
     compatibleWith("com.zing.zalo"("26.08.01"))

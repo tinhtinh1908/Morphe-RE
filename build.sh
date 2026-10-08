@@ -29,7 +29,10 @@ for app in messenger zalo gmail; do
     "$JAVA_HOME/bin/jar" cf "$build/extension-$app.jar" -C "$classes" .
     "$JAVA_HOME/bin/java" -cp "$d8" com.android.tools.r8.D8 --min-api 28 --lib "$android" --output "$dex" "$build/extension-$app.jar"
 done
-"$JAVA_HOME/bin/java" -cp "$compiler:$fat:$annotations" org.jetbrains.kotlin.cli.jvm.K2JVMCompiler -no-stdlib -no-reflect -language-version 2.0 -jvm-target 11 -classpath "$fat:$annotations" -d "$build/classes" "$project/src/shared/MicroGRoute.kt" "$project/src/messenger/MessengerRepairPatch.kt" "$project/src/zalo/ZaloMicroGPatch.kt" "$project/src/gmail/GmailMicroGPatch.kt"
+"$JAVA_HOME/bin/java" -cp "$compiler:$fat:$annotations" org.jetbrains.kotlin.cli.jvm.K2JVMCompiler -no-stdlib -no-reflect -language-version 2.0 -jvm-target 11 -classpath "$fat:$annotations" -d "$build/classes" "$project/src/shared/MicroGRoute.kt" "$project/src/messenger/MessengerRepairPatch.kt" "$project/src/zalo/ZaloMicroGPatch.kt" "$project/src/gmail/GmailMicroGPatch.kt" "$project/src/zalo/BypassNativeStartupTamperPatch.kt"
+mkdir -p "$build/native-test"
+"$JAVA_HOME/bin/java" -cp "$compiler:$fat:$annotations" org.jetbrains.kotlin.cli.jvm.K2JVMCompiler -no-stdlib -no-reflect -language-version 2.0 -jvm-target 11 -classpath "$fat:$annotations" -d "$build/native-test" "$project/src/zalo/BypassNativeStartupTamperPatch.kt" "$project/tests/NativeTamperTest.kt"
+"$JAVA_HOME/bin/java" -cp "$build/native-test:$fat" vn.dtinh.patches.zalo.native.NativeTamperTestKt
 "$JAVA_HOME/bin/jar" cf "$build/patch.jar" -C "$build/classes" .
 "$JAVA_HOME/bin/java" -cp "$d8" com.android.tools.r8.D8 --min-api 26 --lib "$android" --classpath "$fat" --output "$build/patch-dex" "$build/patch.jar"
 python3 scripts/package_mpp.py "$version"

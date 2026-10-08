@@ -77,7 +77,7 @@ private val gmailManifest = resourcePatch {
 
 val gmailMicroGSupport = bytecodePatch(
     name = "Gmail microG support (experimental)",
-    description = "Gmail $VERSION: personal accounts, OAuth, mail sync and FCM/Chime routing through MicroG-RE 7.2.1. Keep the original app package. Device behavior is unverified.",
+    description = "Gmail $VERSION: chuyển tài khoản cá nhân, OAuth, đồng bộ thư và FCM/Chime sang MicroG-RE 7.2.1; giữ nguyên tên gói ứng dụng. Bản thử nghiệm, chưa xác minh hoạt động trên thiết bị.",
     default = false,
 ) {
     compatibleWith("com.google.android.gm"(VERSION))

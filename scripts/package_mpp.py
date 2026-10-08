@@ -14,6 +14,8 @@ with zipfile.ZipFile(build / "patch.jar") as source, zipfile.ZipFile(target, "w"
         if not name.endswith("/") and name != "META-INF/MANIFEST.MF":
             out.writestr(name, source.read(name))
     out.writestr("META-INF/MANIFEST.MF", manifest)
+    for name in ("LICENSE-patches", "LICENSE-zeldris", "THIRD_PARTY_NOTICES.md"):
+        out.write(ROOT / name, name)
     for dex in (build / "patch-dex").glob("classes*.dex"):
         out.write(dex, dex.name)
     for app in ("messenger", "zalo", "gmail"):
