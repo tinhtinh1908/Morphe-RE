@@ -1,0 +1,10 @@
+{
+  "input_sha256": "69d491d416dbcc6eb281b8a0c416a26f320d2b75d297be4680428bf615a35858",
+  "preserved_non_dex_entries": 18618,
+  "changed_non_dex_entries": [],
+  "native_libraries": 13,
+  "resources_arsc_unchanged": false,
+  "decoded_manifest_unchanged": true,
+  "decoded_resources_unchanged": true,
+  "decoded_resource_lines": 78039
+}

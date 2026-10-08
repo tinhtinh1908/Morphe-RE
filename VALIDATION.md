@@ -1,22 +1,33 @@
-# Validation — 0.4.0
+# Validation — 0.5.0
 
-User-requested scope correction: remove diagnostic UI and runtime logs. The Messenger patch is now named Messenger microG FCM support. Its extension contains only registration support and the PendingIntent compatibility wrapper. General patch source is byte-identical to 0.3.
+## Uploaded APK
 
-Verified using official Morphe Desktop 1.18.0 / patcher 1.14.0:
+Messenger `com.facebook.orca` 573.0.0.44.88, SHA-256 `69d491d416dbcc6eb281b8a0c416a26f320d2b75d297be4680428bf615a35858`.
 
-- Build and bundle loading succeeded.
-- Selecting only Messenger support automatically executes the general FCM dependency.
-- One-pass patching and rebuilding succeeded on the user's already routed Messenger APK and on the synthetic unrouted fixture used in 0.3. The fixture is derived from the uploaded APK, not a separately acquired stock build.
-- Decoded both final binary manifests: component lists match the uploaded APK. No added Activity, launcher alias, service, provider or receiver. No diagnostic launcher label or Activity. MicroG routing metadata is present; the existing input's original spoofed signer remains unchanged.
-- Parsed both complete output APKs through dexlib2. No duplicate classes, no FcmDiagnostics/DiagnosticsActivity classes or active references, no Activity subclass in the new extension. No Toast/Clipboard/Log/SharedPreferences calls in the new runtime extension. Exactly three token storage literals and two application hooks to MicroGFcmSupport (boot and pendingBroadcast).
-- Existing Messenger FCM listeners/token/error methods no longer receive any diagnostic hooks. Registration support still runs on a background thread and uses Messenger's existing DI/token pipeline.
+The uploaded APK already contains the 0.4 Messenger support: exactly three isolated IID storage literals, one boot hook and one PendingIntent hook, routed receiver/action/permission, microG package visibility and valid original signer metadata. It has no injected diagnostic UI. Static inspection cannot establish whether the device has registered in microG or received a push.
 
-The patch deliberately rejects an input with the old diagnostic Activity, avoiding retained UI or hooks from earlier repairs. Rebuild from the original APK or the version before the old Messenger repair.
+## Findings and changes
 
-Not verified: runtime push on the phone, UI of existing app components, server token acceptance, all patches from other sources, or device patcher 1.14.1. Successful build/structural checks do not prove end-to-end notifications.
+- The 0.4 runtime sets a process-wide attempted flag before registration. Package lookup failures, exceptions and failures returned by Messenger can suppress retries until process restart.
+- Messenger's `X.1Gw.C2F` returns false on its successful path as well as some failure paths. The new runtime does not interpret this boolean as success.
+- The 0.5 callback follows the existing `X.1cT.A07(session, token, ...)` call in the nonempty-token branch. This establishes local token handoff to Messenger's existing flow; it is not a server ACK or a delivery receipt.
+- Foreground retries use 20/60/120/300-second backoff. One extension worker runs at a time. Pending retries are removed when all Activities pause. An already running host token request can finish; no new background service, alarm or socket is added.
+- Account IDs scope completion; account changes can register again. No token is stored, exported or logged by the extension.
+- Already patched inputs reuse storage and replace old hook destinations. The versioned runtime avoids Morphe's extension merger retaining old method bodies. Dormant 0.4 helper classes can remain in an upgraded APK, but no application hook calls them.
+- Patch-time checks verify the reflected constructor/session/method signatures. Boot insertion preserves invoke/move-result adjacency. Inputs with old diagnostic Activities remain rejected.
 
-## Portable repository packaging
+## Executed checks
 
-The repository export reorganizes only build/documentation infrastructure. Kotlin and runtime Java source files are unchanged from the saved 0.4 source artifact. Portable build completed under JDK 21 with the pinned tools, produced DTinh-MicroG-FCM-0.4.0.mpp, and official Morphe Desktop loaded both public patches. Bash/Python syntax and workflow YAML triggers were checked locally. Tool dependencies are SHA-256 pinned; Google platform/build-tools archives correspond to the official repository metadata. The original supplied 0.4 MPP remains available under releases/.
+Official Morphe Desktop 1.18.0 / patcher 1.14.0 and JDK 21:
 
-The local checks above do not cover remote GitHub Actions execution or tag-based release publication. Check the repository Actions page for current CI results.
+1. Build and MPP loading passed; exactly two public patches.
+2. RegistrationPolicy tests passed: missing login, concurrency, cooldown, capped backoff, completion and account switches. These are JVM policy tests, not Android lifecycle/device tests.
+3. Selecting only Messenger support upgraded the uploaded 0.4 APK in FULL mode. Dependency routing ran first; original spoofed signer was preserved.
+4. Reapplying 0.5 to that output passed in STRIP_SAFE mode. No duplicate hooks or classes.
+5. A synthetic fixture reverses routing and removes Messenger support hooks/storage substitutions from the uploaded APK; applying general routing plus Messenger support passed in STRIP_SAFE mode, including fresh insertion of all three hooks. Explicit original signer metadata was supplied for this unsigned fixture. This is not a separately obtained stock APK; dormant helper classes remain in the fixture.
+6. All three output APKs passed full dexlib2 checks: 128761 unique classes; exactly three support hooks and three storage literals; no application calls to the old runtime; no diagnostic class/reference, added extension Activity or extension UI/log/token-storage call; every move-result follows an instruction that sets a result.
+7. For the upgraded output, decoded manifest text matches the uploaded APK after removing source line numbers. All 78039 lines of decoded resources match exactly, although resource-table serialization bytes changed during rebuild. All 18618 audited non-DEX archive entries, including 13 native library entries, are byte-identical.
+
+Machine-readable patching results and archive audit are under `validation/`. Earlier checks are in `validation/0.4.md`.
+
+Not verified: Android runtime/lifecycle behavior, microG token registration on the phone, Meta server acceptance, push delivery/latency, device patcher 1.14.1, other Messenger versions, or arbitrary combinations of third-party patches. Build success and local token handoff do not prove end-to-end notifications. Check GitHub Actions for remote build results.

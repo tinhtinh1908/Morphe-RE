@@ -8,6 +8,7 @@ if [[ ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
   echo "VERSION must contain a semantic version, for example 0.4.0" >&2
   exit 1
 fi
+bash tests/test-policy.sh
 python3 scripts/setup_tools.py
 fat="$project/.tools/morphe-desktop-1.18.0-all.jar"
 compiler="$project/.tools/kotlin-compiler-2.3.10.jar"

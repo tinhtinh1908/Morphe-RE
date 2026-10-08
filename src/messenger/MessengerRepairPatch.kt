@@ -13,7 +13,8 @@ import com.android.tools.smali.dexlib2.builder.instruction.BuilderInstruction31c
 import com.android.tools.smali.dexlib2.immutable.reference.ImmutableStringReference
 import org.w3c.dom.Element
 
-private const val EXT = "Lvn/dtinh/messenger/MicroGFcmSupport;"
+private const val EXT = "Lvn/dtinh/messenger/MicroGFcmSupportV5;"
+private const val OLD_EXT = "Lvn/dtinh/messenger/MicroGFcmSupport;"
 private const val IID = "Lcom/google/firebase/iid/FirebaseInstanceId;"
 private const val RECEIVER = "com.google.firebase.iid.FirebaseInstanceIdReceiver"
 
@@ -56,10 +57,22 @@ val messengerMicroGRepair = bytecodePatch(
     dependsOn(repairManifest)
     extendWith("extensions/messenger-fcm.dex")
     execute {
-        var stores = 0; var pending = 0; var startup = 0
+        // Reflection targets are deliberately version-specific; fail before emitting a broken hook.
+        fun hasMethod(type: String, name: String, parameters: List<String>, result: String) =
+            classDefByOrNull(type)?.methods?.any { it.name == name &&
+                it.parameterTypes.map { p -> p.toString() } == parameters && it.returnType == result } == true
+        val session = "Lcom/facebook/auth/usersession/FbUserSession;"
+        require(hasMethod("LX/17x;", "A0A", emptyList(), session) &&
+            hasMethod(session, "B4d", emptyList(), "Ljava/lang/String;") &&
+            hasMethod("LX/1Gv;", "<init>", emptyList(), "V") &&
+            hasMethod("LX/1Gv;", "ATw", listOf(session), "V") &&
+            hasMethod("LX/1Gv;", "C2E", listOf(session, "Ljava/lang/String;"), "Z")) {
+            "Messenger session/registration layout changed. No compatible runtime can be emitted."
+        }
+        var stores = 0; var pending = 0; var startup = 0; var ready = 0
         classDefForEach { original ->
             if (original.type !in setOf("LX/1fR;", IID, "LX/1hL;",
-                "Lcom/facebook/push/fcm/customprovider/FirebaseInitCustomProvider\$Impl;")) return@classDefForEach
+                "LX/1Gw;", "Lcom/facebook/push/fcm/customprovider/FirebaseInitCustomProvider\$Impl;")) return@classDefForEach
             val mutable = mutableClassDefBy(original)
             for (method in mutable.methods.toList()) {
                 val instructions = method.implementation?.instructions?.toList() ?: continue
@@ -75,17 +88,44 @@ val messengerMicroGRepair = bytecodePatch(
                             stores++
                         }
                     }
+                    if (original.type in setOf("LX/1fR;", IID) && text in setOf("dtinh.microg.firebase.appid.v2", "dtinh.microg.firebase.appid.v2-no-backup")) stores++
                     val call = (ref as? MethodReference)?.toString()
-                    if (original.type == "LX/1hL;" && call == "Landroid/app/PendingIntent;->getBroadcast(Landroid/content/Context;ILandroid/content/Intent;I)Landroid/app/PendingIntent;") {
+                    if (original.type == "LX/1hL;" && call in setOf("Landroid/app/PendingIntent;->getBroadcast(Landroid/content/Context;ILandroid/content/Intent;I)Landroid/app/PendingIntent;",
+                        "$OLD_EXT->pendingBroadcast(Landroid/content/Context;ILandroid/content/Intent;I)Landroid/app/PendingIntent;",
+                        "$EXT->pendingBroadcast(Landroid/content/Context;ILandroid/content/Intent;I)Landroid/app/PendingIntent;")) {
                         val args = instruction as FiveRegisterInstruction
                         changes += index to {
                             method.replaceInstruction(index, "invoke-static {v${args.registerC}, v${args.registerD}, v${args.registerE}, v${args.registerF}}, $EXT->pendingBroadcast(Landroid/content/Context;ILandroid/content/Intent;I)Landroid/app/PendingIntent;")
                             pending++
                         }
                     }
-                    if (original.type.endsWith("FirebaseInitCustomProvider\$Impl;") && call == "LX/1cw;->A02(Landroid/content/Context;)Z") {
-                        val register = (instruction as FiveRegisterInstruction).registerC
-                        changes += index to { method.addInstructions(index + 1, "invoke-static {v$register}, $EXT->boot(Landroid/content/Context;)V"); startup++ }
+                    if (original.type.endsWith("FirebaseInitCustomProvider\$Impl;")) {
+                        if (call in setOf("$OLD_EXT->boot(Landroid/content/Context;)V", "$EXT->boot(Landroid/content/Context;)V")) {
+                            val register = (instruction as FiveRegisterInstruction).registerC
+                            changes += index to { method.replaceInstruction(index, "invoke-static {v$register}, $EXT->boot(Landroid/content/Context;)V"); startup++ }
+                        }
+                        if (call == "LX/1cw;->A02(Landroid/content/Context;)Z" && instructions.none {
+                            ((it as? ReferenceInstruction)?.reference as? MethodReference)?.toString() in
+                                setOf("$OLD_EXT->boot(Landroid/content/Context;)V", "$EXT->boot(Landroid/content/Context;)V")
+                        }) {
+                            val register = (instruction as FiveRegisterInstruction).registerC
+                            // Keep invoke/move-result adjacent when the host consumes the boolean.
+                            val next = instructions.getOrNull(index + 1)?.opcode
+                            val after = index + if (next in setOf(Opcode.MOVE_RESULT, Opcode.MOVE_RESULT_OBJECT, Opcode.MOVE_RESULT_WIDE)) 2 else 1
+                            changes += index to { method.addInstructions(after, "invoke-static {v$register}, $EXT->boot(Landroid/content/Context;)V"); startup++ }
+                        }
+                    }
+                    if (original.type == "LX/1Gw;" && method.name == "C2F") {
+                        if (call == "$EXT->tokenReady(Ljava/lang/Object;Ljava/lang/String;)V") ready++
+                        if (call == "LX/1cT;->A07(Lcom/facebook/auth/usersession/FbUserSession;Ljava/lang/String;I)V" && instructions.none {
+                            ((it as? ReferenceInstruction)?.reference as? MethodReference)?.toString() == "$EXT->tokenReady(Ljava/lang/Object;Ljava/lang/String;)V"
+                        }) {
+                            val args = instruction as FiveRegisterInstruction
+                            changes += index to {
+                                method.addInstructions(index + 1, "invoke-static {v${args.registerD}, v${args.registerE}}, $EXT->tokenReady(Ljava/lang/Object;Ljava/lang/String;)V")
+                                ready++
+                            }
+                        }
                     }
 
                 }
@@ -94,8 +134,8 @@ val messengerMicroGRepair = bytecodePatch(
 
             }
         }
-        require(stores == 3 && pending == 1 && startup == 1) {
-            "Unexpected Messenger layout: stores=$stores pending=$pending startup=$startup. Use the input before the older Messenger repair."
+        require(stores == 3 && pending == 1 && startup == 1 && ready == 1) {
+            "Unexpected Messenger layout: stores=$stores pending=$pending startup=$startup ready=$ready. Use a compatible input; old diagnostics repairs must be removed."
         }
     }
 }
