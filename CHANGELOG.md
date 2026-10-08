@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.0-dev.1
+
+- Thêm Gmail microG support (experimental), giới hạn Gmail 2026.09.21.992487546.Release.
+- Giữ com.google.android.gm; chuyển loại tài khoản cá nhân, provider OAuth, sync adapter và FCM/Chime.
+- Giữ tên lớp GetToken và Binder descriptor gốc; tách sáu vị trí cache FCM.
+- Kiểm tra cấu trúc DEX, metadata signer và split requirement; không thêm UI/socket/service duy trì.
+- Build, kiểm tra bundle và vá/rebuild fixture từ DEX/resources Gmail gốc đã pass; split ARM64 bị hỏng nên chưa kiểm tra cài đầy đủ hoặc chạy trên thiết bị.
+- Bản thử chỉ ở kênh dev/Pre-release; nguồn ổn định giữ 0.6.0.
+
 ## 0.6.0
 
 - Bỏ mục vá phổ quát; chỉ còn hai bản vá riêng theo package/version: Zalo và Messenger.

@@ -16,6 +16,6 @@ with zipfile.ZipFile(build / "patch.jar") as source, zipfile.ZipFile(target, "w"
     out.writestr("META-INF/MANIFEST.MF", manifest)
     for dex in (build / "patch-dex").glob("classes*.dex"):
         out.write(dex, dex.name)
-    for app in ("messenger", "zalo"):
+    for app in ("messenger", "zalo", "gmail"):
         out.write(build / f"extension-{app}-dex/classes.dex", f"extensions/{app}-fcm.dex")
 print(target)

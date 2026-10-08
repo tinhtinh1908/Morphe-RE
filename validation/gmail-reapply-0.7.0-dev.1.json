@@ -1,0 +1,1 @@
+{"packageName":"com.google.android.gm","packageVersion":"2026.09.21.992487546.Release","patchingSteps":[{"step":"PATCHING","success":true},{"step":"REBUILDING","success":true}],"appliedPatches":[{"name":"Gmail microG support (experimental)"}],"failedPatches":[]}
