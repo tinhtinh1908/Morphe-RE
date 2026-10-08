@@ -1,0 +1,31 @@
+{
+  "dependencies": [
+    {
+      "filename": "morphe-desktop-1.18.0-all.jar",
+      "url": "https://github.com/MorpheApp/morphe-desktop/releases/download/v1.18.0/morphe-desktop-1.18.0-all.jar",
+      "sha256": "36e20d7a18f655fb5829ae50aadd61217e2208536c0741df5f7799300f758f56"
+    },
+    {
+      "filename": "kotlin-compiler-2.3.10.jar",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/kotlin/kotlin-compiler/2.3.10/kotlin-compiler-2.3.10.jar",
+      "sha256": "205abc86c6b0a40bc1a318bb24a062c7eb9a99abb023ee276bf925e3732511c8"
+    },
+    {
+      "filename": "annotations-26.0.2.jar",
+      "url": "https://repo.maven.apache.org/maven2/org/jetbrains/annotations/26.0.2/annotations-26.0.2.jar",
+      "sha256": "2037be378980d3ba9333e97955f3b2cde392aa124d04ca73ce2eee6657199297"
+    },
+    {
+      "filename": "platform-35_r02.zip",
+      "url": "https://dl.google.com/android/repository/platform-35_r02.zip",
+      "sha256": "0988cacad01b38a18a47bac14a0695f246bc76c1b06c0eeb8eb0dc825ab0c8e0",
+      "extract": "platform"
+    },
+    {
+      "filename": "build-tools_r35_linux.zip",
+      "url": "https://dl.google.com/android/repository/build-tools_r35_linux.zip",
+      "sha256": "bd3a4966912eb8b30ed0d00b0cda6b6543b949d5ffe00bea54c04c81e1561d88",
+      "extract": "buildtools"
+    }
+  ]
+}
