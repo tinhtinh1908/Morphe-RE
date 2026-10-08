@@ -12,7 +12,7 @@ import com.android.tools.smali.dexlib2.iface.reference.StringReference
 import com.android.tools.smali.dexlib2.builder.instruction.BuilderInstruction31c
 import com.android.tools.smali.dexlib2.immutable.reference.ImmutableStringReference
 import org.w3c.dom.Element
-private fun original(s:String):String? = if(s == "app.revanced.android.gms" || s.startsWith("app.revanced.android.c2dm.") || s == "app.revanced.iid.TOKEN_REQUEST" || s == "app.revanced.android.gcm.intent.SEND") s.replaceFirst("app.revanced", "com.google") else if(s.startsWith("dtinh.microg.firebase.appid.v2")) s.replace("dtinh.microg.firebase.appid.v2", "com.google.android.gms.appid") else null
+private fun original(s:String):String? = if(s == "app.revanced.android.gms" || s.startsWith("app.revanced.android.c2dm.") || s == "app.revanced.iid.TOKEN_REQUEST" || s == "app.revanced.android.gcm.intent.SEND") s.replaceFirst("app.revanced", "com.google") else if(s.startsWith("dtinh.microg.firebase.appid.v2")) s.replace("dtinh.microg.firebase.appid.v2", "com.google.android.gms.appid") else if(s.startsWith("dtinh.microg.zalo.fcm.v1")) s.replace("dtinh.microg.zalo.fcm.v1", "com.google.android.gms.appid") else null
 private val manifestFixture = resourcePatch {
  execute {
   document("AndroidManifest.xml").use { doc ->
@@ -39,7 +39,7 @@ val unrouteFixture=bytecodePatch(name="Test fixture remove microG route",default
     val instructions = source.implementation?.instructions?.toList() ?: continue
     val supportCalls = instructions.mapIndexedNotNull { index, i ->
      val ref = ((i as? ReferenceInstruction)?.reference as? MethodReference) ?: return@mapIndexedNotNull null
-     if (!c.type.startsWith("Lvn/dtinh/messenger/") && ref.definingClass in setOf("Lvn/dtinh/messenger/MicroGFcmSupport;", "Lvn/dtinh/messenger/MicroGFcmSupportV5;")) index to i else null
+     if (!c.type.startsWith("Lvn/dtinh/messenger/") && ref.definingClass in setOf("Lvn/dtinh/messenger/MicroGFcmSupport;", "Lvn/dtinh/messenger/MicroGFcmSupportV5;", "Lvn/dtinh/zalo/ZaloMicroGSupportV6;")) index to i else null
     }
     if(changes.isNotEmpty() || supportCalls.isNotEmpty()) {
      val m=mutableClassDefBy(c).methods.first { it.name==source.name && it.parameterTypes==source.parameterTypes && it.returnType==source.returnType }

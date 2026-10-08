@@ -3,9 +3,6 @@ package vn.dtinh.patches
 
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.resourcePatch
-import app.morphe.patcher.patch.stringOption
-import app.morphe.patcher.patch.booleanOption
-import app.morphe.patcher.patch.Option
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.extensions.InstructionExtensions.replaceInstruction
 import app.morphe.patcher.util.proxy.mutableTypes.encodedValue.MutableStringEncodedValue
@@ -38,7 +35,6 @@ private val redirects = fcmNames.associateWith { it.replaceFirst("com.google", V
 
 internal fun redirect(value: String): String? = redirects[value]
 
-private lateinit var certificate: Option<String>
 private var hasExistingRoute = false
 
 // Resource dependency is unnamed so the user selects one public patch only.
@@ -47,6 +43,10 @@ private val manifestPatch = resourcePatch {
 
     execute {
         val original = packageMetadata.packageName
+        require((original == "com.facebook.orca" && packageMetadata.versionName == "573.0.0.44.88") ||
+            (original == "com.zing.zalo" && packageMetadata.versionName == "26.08.01")) {
+            "Only the supported Messenger and Zalo versions have dedicated patches."
+        }
         require(original != "com.google.android.gms" && original != MICROG) {
             "Patch a CLIENT app, not Google Play services or MicroG."
         }
@@ -69,16 +69,16 @@ private val manifestPatch = resourcePatch {
                 hasExistingRoute = true
             }
         }
-        val digest = savedSignature ?: if (certificate.value == "Auto") {
+        val digest = savedSignature ?: run {
             val candidates = packageMetadata.signingCertificates.values.flatten().map {
                 MessageDigest.getInstance("SHA-1").digest(it.encoded)
                     .joinToString("") { b -> "%02x".format(b.toInt() and 255) }
             }.distinct()
             require(candidates.size == 1) {
-                "Cannot select one original signer. Set originalCertificateSha1 to the unmodified app's SHA-1."
+                "Cannot select one original signer. Use an original signed APK or an input with valid original signer metadata."
             }
             candidates.single()
-        } else certificate.value!!.lowercase()
+        }
 
         document("AndroidManifest.xml").use { doc ->
             val root = doc.documentElement
@@ -131,23 +131,9 @@ private val manifestPatch = resourcePatch {
     }
 }
 
-@Suppress("unused")
-val fcmMicroGPatch = bytecodePatch(
-    name = "FCM via MicroG-RE (experimental)",
-    description = "Redirects known Java/Kotlin FCM registration and delivery routes to app.revanced.android.gms. App-specific compatibility and push delivery must be tested.",
-    default = false
-) {
+// Internal routing dependency. Only the two version-scoped app patches are selectable.
+internal val microGRoutingDependency = bytecodePatch(default = false) {
     dependsOn(manifestPatch)
-    certificate = stringOption(
-        key = "originalCertificateSha1", default = "Auto", title = "Original certificate SHA-1",
-        description = "Auto reads the input APK signer. For v1-only/rotated APKs enter the original 40-digit SHA-1.",
-        required = true
-    ) { it == "Auto" || it?.matches(Regex("[a-fA-F0-9]{40}")) == true }
-    val bypassAvailability = booleanOption(
-        key = "patchKnownAvailabilityCheck", default = true,
-        title = "Patch known SDK availability check",
-        description = "Returns success only for the matched GooglePlayServicesUtil SDK check. Other signature/integrity checks are untouched."
-    )
     execute {
         var strings = 0
         var fields = 0
@@ -157,6 +143,14 @@ val fcmMicroGPatch = bytecodePatch(
         var existingFcmRoutes = 0
         classDefForEach { original ->
             if (original.type.startsWith("Lcom/google/firebase/messaging/")) hasFirebaseMessaging = true
+            // Zalo 26.08.01: restrict changes to its verified FCM transport and SDK helpers.
+            // Already routed input may contain changes from older bundles outside this scope;
+            // preserve them instead of guessing how another patch configured auth/ads/ML APIs.
+            if (packageMetadata.packageName == "com.zing.zalo" &&
+                !(original.type.startsWith("Lcom/google/firebase/messaging/") ||
+                  original.type.startsWith("Lcom/google/firebase/iid/") ||
+                  original.type.startsWith("Ljf/") || original.type.startsWith("Lx9/") ||
+                  original.type.startsWith("Ly9/") || original.type in setOf("Lpj/g;", "Lka/a;", "Lj20/e;"))) return@classDefForEach
             val pendingMethods = original.methods.mapNotNull { method ->
                 val impl = method.implementation ?: return@mapNotNull null
                 val originalInstructions = impl.instructions.toList()
@@ -175,7 +169,7 @@ val fcmMicroGPatch = bytecodePatch(
                         ?: return@mapIndexedNotNull null
                     redirect(value)?.let { Triple(index, instruction as OneRegisterInstruction, it) }
                 }
-                if (replacements.isEmpty() && !(knownCheck && bypassAvailability.value == true)) null
+                if (replacements.isEmpty() && !(knownCheck )) null
                 else Triple(method, replacements, knownCheck)
             }
             val pendingFields = original.staticFields.filter {
@@ -192,7 +186,7 @@ val fcmMicroGPatch = bytecodePatch(
                         strings++
                         if (replacement != MICROG) fcmRoutes++
                     }
-                    if (knownCheck && bypassAvailability.value == true) {
+                    if (knownCheck ) {
                         method.addInstructions(0, "const/4 v0, 0x0\nreturn v0")
                         checks++
                     }

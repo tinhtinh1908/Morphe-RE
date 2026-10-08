@@ -1,17 +1,28 @@
 # Developer checks
 
-Build the project first with `bash build.sh`. No app APK is included in this repository.
+Build with `bash build.sh` first. No app APK or fixture signing key is included.
 
-For an APK patched with Messenger support, compile and run the structural checker:
+`bash tests/test-policy.sh` tests missing login, concurrency, cooldown, capped retry backoff, local token handoff and account switches. It runs automatically during build; it does not exercise an Android lifecycle or a real push provider.
+
+Compile both structural checkers:
 
 ```bash
 mkdir -p build/test-classes
-"$JAVA_HOME/bin/javac" -cp .tools/morphe-desktop-1.18.0-all.jar -d build/test-classes tests/VerifyNoUi.java
-"$JAVA_HOME/bin/java" -Xmx1800m -cp build/test-classes:.tools/morphe-desktop-1.18.0-all.jar VerifyNoUi /absolute/path/to/patched.apk
+"$JAVA_HOME/bin/javac" -cp .tools/morphe-desktop-1.18.0-all.jar -d build/test-classes tests/VerifyNoUi.java tests/VerifyZalo.java
 ```
 
-The checker verifies no diagnostic classes/references or UI/log calls, no duplicate class descriptors, token storage namespace, three FCM support hooks, absence of active 0.4 hooks and invoke/move-result adjacency. Manifest component comparison and device push verification are separate checks.
+For Messenger:
 
-`build-fixture.sh /absolute/path/to/routed-input.apk` creates a test-only unrouted fixture under build/fixture. Its MPP is not part of the release. It does not recreate a pristine stock APK; it reverses route markers and Messenger support hooks/storage substitutions for testing fresh insertion. Dormant helper classes can remain. Sign a fixture with your own test key before testing automatic certificate extraction; no signing key is included here.
+```bash
+"$JAVA_HOME/bin/java" -Xmx1800m -cp build/test-classes:.tools/morphe-desktop-1.18.0-all.jar VerifyNoUi /absolute/path/to/messenger-patched.apk
+```
 
-`bash tests/test-policy.sh` runs JVM retry policy checks and is also run automatically by build.sh. It does not exercise Android lifecycle callbacks or a real push provider.
+For Zalo:
+
+```bash
+"$JAVA_HOME/bin/java" -Xmx1800m -cp build/test-classes:.tools/morphe-desktop-1.18.0-all.jar VerifyZalo /absolute/path/to/zalo-patched.apk
+```
+
+Both check every DEX for duplicate classes, diagnostic/UI/log calls, isolated storage, exact hook counts and invoke/move-result adjacency. Zalo's checker rejects Messenger runtime injection. Manifest component/resource comparison, reflection signature access, Android runtime behavior and device push verification require separate checks.
+
+`build-fixture.sh /absolute/path/to/routed.apk` reverses route markers/metadata and known support hooks/storage under `build/fixture`. The fixture MPP is test-only; this does not recreate a pristine stock APK and dormant helpers can remain. Sign the resulting fixture with your own temporary test key before testing automatic signer extraction, then select only the appropriate app patch from the release MPP. The universal patch and its old certificate option do not exist in 0.6.

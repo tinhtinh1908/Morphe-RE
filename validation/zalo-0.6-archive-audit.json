@@ -1,0 +1,8 @@
+{
+  "input_sha256": "88f8f9e8d840126c45659faf2154713a056379bf40f2d5ae8b028058a8dde27b",
+  "audited_non_dex_entries": 9532,
+  "changed_non_dex_entries": [],
+  "native_libraries": 42,
+  "decoded_resources_unchanged": true,
+  "manifest_diff": "--- \n+++ \n@@ -1714,6 +1714,7 @@\n           E: receiver\n             A: http://schemas.android.com/apk/res/android:name(0x01010003)=\"com.google.firebase.iid.FirebaseInstanceIdReceiver\" (Raw: \"com.google.firebase.iid.FirebaseInstanceIdReceiver\")\n             A: http://schemas.android.com/apk/res/android:permission(0x01010006)=\"app.revanced.android.c2dm.permission.SEND\" (Raw: \"app.revanced.android.c2dm.permission.SEND\")\n+            A: http://schemas.android.com/apk/res/android:enabled(0x0101000e)=true\n             A: http://schemas.android.com/apk/res/android:exported(0x01010010)=true\n               E: intent-filter\n                   E: action\n"
+}

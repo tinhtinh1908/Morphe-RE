@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: GPL-3.0-only
 package vn.dtinh.patches.messenger
 
-import vn.dtinh.patches.fcmMicroGPatch
+import vn.dtinh.patches.microGRoutingDependency
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.resourcePatch
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
@@ -19,7 +19,7 @@ private const val IID = "Lcom/google/firebase/iid/FirebaseInstanceId;"
 private const val RECEIVER = "com.google.firebase.iid.FirebaseInstanceIdReceiver"
 
 private val repairManifest = resourcePatch {
-    dependsOn(fcmMicroGPatch)
+    dependsOn(microGRoutingDependency)
     execute {
         require(packageMetadata.packageName == "com.facebook.orca" && packageMetadata.versionName == "573.0.0.44.88") {
             "This repair was verified only against Messenger 573.0.0.44.88."

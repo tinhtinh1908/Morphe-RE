@@ -18,10 +18,18 @@ d8="$project/.tools/buildtools/android-15/lib/d8.jar"
 build="$project/build"
 rm -rf "$build/classes" "$build/patch-dex" "$build/extension-classes" "$build/extension-dex"
 mkdir -p "$build/classes" "$build/patch-dex" "$build/extension-classes" "$build/extension-dex" "$project/dist"
-"$JAVA_HOME/bin/javac" --release 8 -encoding UTF-8 -cp "$android" -d "$build/extension-classes" "$project"/extension/vn/dtinh/messenger/*.java
-"$JAVA_HOME/bin/jar" cf "$build/extension.jar" -C "$build/extension-classes" .
-"$JAVA_HOME/bin/java" -cp "$d8" com.android.tools.r8.D8 --min-api 28 --lib "$android" --output "$build/extension-dex" "$build/extension.jar"
-"$JAVA_HOME/bin/java" -cp "$compiler:$fat:$annotations" org.jetbrains.kotlin.cli.jvm.K2JVMCompiler -no-stdlib -no-reflect -language-version 2.0 -jvm-target 11 -classpath "$fat:$annotations" -d "$build/classes" "$project/src/general/FcmMicroGPatch.kt" "$project/src/messenger/MessengerRepairPatch.kt"
+for app in messenger zalo; do
+    classes="$build/extension-$app-classes"
+    dex="$build/extension-$app-dex"
+    rm -rf "$classes" "$dex"
+    mkdir -p "$classes" "$dex"
+    sources=("$project"/extension/vn/dtinh/"$app"/*.java)
+    if [[ "$app" == zalo ]]; then sources+=("$project/extension/vn/dtinh/messenger/RegistrationPolicy.java"); fi
+    "$JAVA_HOME/bin/javac" --release 8 -encoding UTF-8 -cp "$android" -d "$classes" "${sources[@]}"
+    "$JAVA_HOME/bin/jar" cf "$build/extension-$app.jar" -C "$classes" .
+    "$JAVA_HOME/bin/java" -cp "$d8" com.android.tools.r8.D8 --min-api 28 --lib "$android" --output "$dex" "$build/extension-$app.jar"
+done
+"$JAVA_HOME/bin/java" -cp "$compiler:$fat:$annotations" org.jetbrains.kotlin.cli.jvm.K2JVMCompiler -no-stdlib -no-reflect -language-version 2.0 -jvm-target 11 -classpath "$fat:$annotations" -d "$build/classes" "$project/src/shared/MicroGRoute.kt" "$project/src/messenger/MessengerRepairPatch.kt" "$project/src/zalo/ZaloMicroGPatch.kt"
 "$JAVA_HOME/bin/jar" cf "$build/patch.jar" -C "$build/classes" .
 "$JAVA_HOME/bin/java" -cp "$d8" com.android.tools.r8.D8 --min-api 26 --lib "$android" --classpath "$fat" --output "$build/patch-dex" "$build/patch.jar"
 python3 scripts/package_mpp.py "$version"

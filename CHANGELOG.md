@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.6.0
+
+- Bỏ mục vá phổ quát; chỉ còn hai bản vá riêng theo package/version: Zalo và Messenger.
+- Thêm Zalo 26.08.01: chuyển tuyến FCM có phạm vi, tách kho token và retry luồng đăng ký sẵn có sau đăng nhập.
+- Giữ cơ chế chống đăng ký trùng của Zalo; không thêm UI/socket/service và không ép đổi kênh push.
+- Runtime DEX của hai app được đóng gói riêng, chỉ merge phần của app đang vá.
+- Kiểm tra vá mới, vá lại, fixture Zalo và hồi quy Messenger.
+
 ## 0.5.0
 
 - Sửa lỗi thử đăng ký một lần rồi dừng dù thất bại ở 0.4.
