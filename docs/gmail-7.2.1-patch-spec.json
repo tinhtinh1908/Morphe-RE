@@ -1,0 +1,41 @@
+{
+  "status": "research-only-not-a-patch",
+  "packageName": "com.google.android.gm",
+  "versionName": "2026.09.21.992487546.Release",
+  "versionCode": 66054195,
+  "installMode": "replace-original-package",
+  "backendVersion": "7.2.1",
+  "backendCommit": "66a2bbac7d88c3e038f1b047774fe2ae65534b6a",
+  "auth": {
+    "component": {
+      "package": "app.revanced.android.gms",
+      "class": "com.google.android.gms.auth.GetToken"
+    },
+    "accountType": "app.revanced",
+    "accountsAuthority": "app.revanced.android.gms.auth.accounts",
+    "binderDescriptor": "com.google.android.auth.IAuthManagerService",
+    "getTokenTransaction": 5,
+    "getAccountsTransaction": 6,
+    "spoofedSignerSha1": "38918a453d07199354f8b19af05ec6562ced5788"
+  },
+  "constraints": [
+    "Preserve Java class names and Binder descriptors",
+    "Contextual rewrite only; not global prefix replacement",
+    "Personal accounts validated statically; work accounts not validated",
+    "Preserve Gmail package, own authorities, OAuth scopes and server project identity",
+    "Keep native and resource splits",
+    "Check backend presence and enabled state before accepting compatibility",
+    "FCM cert path reads installed signer; test server behavior separately from OAuth"
+  ],
+  "deviceTestsRequired": [
+    "Account access",
+    "Mail OAuth grant",
+    "FCM registration",
+    "Chime per-account registration",
+    "Send and receive mail",
+    "Background sync and push",
+    "Account switching",
+    "Token refresh",
+    "Split install/rebuild"
+  ]
+}
