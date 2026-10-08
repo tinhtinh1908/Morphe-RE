@@ -1,0 +1,54 @@
+name: Publish requested release
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/release.json'
+      - '.github/workflows/publish-release.yml'
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: publish-release
+  cancel-in-progress: false
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Prepare validated release
+        run: |
+          python3 - <<'PY'
+          import json, os, re, subprocess
+          from pathlib import Path
+          request = json.loads(Path(".github/release.json").read_text())
+          version, target = request["version"], request["target"]
+          assert re.fullmatch(r"\d+\.\d+\.\d+", version)
+          assert re.fullmatch(r"[0-9a-f]{40}", target)
+          def read(path):
+              return subprocess.check_output(["git", "show", target + ":" + path])
+          assert read("VERSION").decode().strip() == version
+          filename = "DTinh-MicroG-FCM-" + version + ".mpp"
+          Path("dist").mkdir(exist_ok=True)
+          Path("dist", filename).write_bytes(read("releases/" + filename))
+          changelog = read("CHANGELOG.md").decode()
+          notes = changelog.split("## " + version + "\n", 1)[1].split("\n## ", 1)[0].strip()
+          notes += "\n\nHỗ trợ Zalo 26.08.01 và Messenger 573.0.0.44.88. Chọn bản vá riêng cho ứng dụng trong Morphe Manager.\n\nBuild và kiểm tra APK đã pass; việc nhận push thực tế cần kiểm tra trên thiết bị.\n"
+          Path("release-notes.md").write_text(notes)
+          with open(os.environ["GITHUB_ENV"], "a") as env:
+              env.write("RELEASE_TAG=v" + version + "\n")
+              env.write("RELEASE_TARGET=" + target + "\n")
+              env.write("RELEASE_ASSET=dist/" + filename + "\n")
+          PY
+      - name: Publish release with MPP
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
+            echo "Release already exists; leaving it unchanged."
+          else
+            gh release create "$RELEASE_TAG" "$RELEASE_ASSET" --target "$RELEASE_TARGET" --title "DTinh MicroG FCM $RELEASE_TAG" --notes-file release-notes.md --latest
+          fi
