@@ -1,0 +1,7 @@
+{
+  "version": "0.6.0",
+  "download_url": "https://github.com/tinhtinh1908/Morphe-RE/releases/download/v0.6.0/DTinh-MicroG-FCM-0.6.0.mpp",
+  "created_at": "2026-10-08T03:18:02",
+  "description": "- Bỏ mục vá phổ quát; chỉ còn hai bản vá riêng theo package/version: Zalo và Messenger.\n- Thêm Zalo 26.08.01: chuyển tuyến FCM có phạm vi, tách kho token và retry luồng đăng ký sẵn có sau đăng nhập.\n- Giữ cơ chế chống đăng ký trùng của Zalo; không thêm UI/socket/service và không ép đổi kênh push.\n- Runtime DEX của hai app được đóng gói riêng, chỉ merge phần của app đang vá.\n- Kiểm tra vá mới, vá lại, fixture Zalo và hồi quy Messenger.\n\nHỗ trợ Zalo 26.08.01 và Messenger 573.0.0.44.88. Chọn bản vá riêng cho ứng dụng trong Morphe Manager.\n\nBuild và kiểm tra APK đã pass; việc nhận push thực tế cần kiểm tra trên thiết bị.\n",
+  "page_url": "https://github.com/tinhtinh1908/Morphe-RE/releases/tag/v0.6.0"
+}

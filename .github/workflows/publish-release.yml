@@ -52,3 +52,40 @@ jobs:
           else
             gh release create "$RELEASE_TAG" "$RELEASE_ASSET" --target "$RELEASE_TARGET" --title "DTinh MicroG FCM $RELEASE_TAG" --notes-file release-notes.md --latest
           fi
+      - name: Update Manager source metadata
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import base64, json, os, subprocess
+          from pathlib import Path
+          repo = os.environ["GH_REPO"]
+          tag = os.environ["RELEASE_TAG"]
+          release = json.loads(subprocess.check_output(["gh", "api", "repos/" + repo + "/releases/tags/" + tag]))
+          assert not release["draft"]
+          version = tag.removeprefix("v")
+          asset = next(a for a in release["assets"] if a["name"] == "DTinh-MicroG-FCM-" + version + ".mpp" and a["state"] == "uploaded")
+          metadata = {
+              "version": version,
+              "download_url": asset["browser_download_url"],
+              "created_at": release["published_at"].removesuffix("Z"),
+              "description": release["body"] or "",
+              "page_url": release["html_url"],
+          }
+          content = json.dumps(metadata, ensure_ascii=False, indent=2) + "\n"
+          endpoint = "repos/" + repo + "/contents/patches-bundle.json"
+          existing = subprocess.run(["gh", "api", endpoint + "?ref=main"], capture_output=True, text=True)
+          payload = {"message": "Update Morphe Manager source metadata for " + tag, "branch": "main", "content": base64.b64encode(content.encode()).decode()}
+          if existing.returncode == 0:
+              current = json.loads(existing.stdout)
+              if base64.b64decode(current["content"]).decode() == content:
+                  print("Manager metadata already up to date.")
+                  raise SystemExit(0)
+              payload["sha"] = current["sha"]
+          else:
+              assert "404" in existing.stderr, existing.stderr
+          Path("metadata-request.json").write_text(json.dumps(payload))
+          subprocess.run(["gh", "api", "--method", "PUT", endpoint, "--input", "metadata-request.json"], check=True, stdout=subprocess.DEVNULL)
+          print("Manager source metadata published.")
+          PY
