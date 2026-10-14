@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.0
+
+- Phát hành chính thức cho Messenger 573.0.0.44.88 và Zalo 26.08.01; không chứa Gmail.
+- Zalo có hai mục: microG FCM và native startup độc lập (ARM64), nguồn zeldrisho/morphe-patches.
+- Hoàn thiện nguồn, ghi công, giấy phép và NOTICE; đóng kèm trong MPP.
+- Đính kèm mã nguồn tương ứng, công cụ build được ghim và SHA-256.
+- Logic FCM giữ nguyên 0.6.0; native giữ nguyên dev.2. Kiểm thử policy/native và kiểm tra gói khi build; chưa kiểm thử khởi động/nhận push trên thiết bị ở phiên phát hành này.
+
 ## 0.6.0
 
 - Bỏ mục vá phổ quát; chỉ còn hai bản vá riêng theo package/version: Zalo và Messenger.

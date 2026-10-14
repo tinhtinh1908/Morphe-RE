@@ -50,7 +50,7 @@ private val repairManifest = resourcePatch {
 
 val messengerMicroGRepair = bytecodePatch(
     name = "Messenger microG FCM support",
-    description = "Messenger 573: route FCM to MicroG-RE, isolate IID tokens, fix PendingIntent and start Messenger's registration flow.",
+    description = "Messenger 573: chuyển FCM sang MicroG-RE, tách token IID, sửa PendingIntent và kích hoạt luồng đăng ký sẵn có của Messenger.",
     default = false,
 ) {
     compatibleWith("com.facebook.orca"("573.0.0.44.88"))
