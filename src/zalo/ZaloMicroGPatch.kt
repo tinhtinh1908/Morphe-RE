@@ -2,6 +2,7 @@
 package vn.dtinh.patches.zalo
 
 import vn.dtinh.patches.microGRoutingDependency
+import vn.dtinh.patches.disablePlayStoreUpdatesDependency
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.resourcePatch
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
@@ -39,11 +40,11 @@ private val zaloManifest = resourcePatch {
 
 val zaloMicroGSupport = bytecodePatch(
     name = "Zalo microG FCM support",
-    description = "Zalo 26.08.01: chuyển FCM sang MicroG-RE, tách bộ nhớ token và thử lại luồng đăng ký sẵn có khi đã đăng nhập.",
+    description = "Giúp Zalo nhận thông báo qua MicroG-RE khi máy không có dịch vụ Google. Tự chặn cập nhật từ CH Play để giữ bản đã vá. Cần cài MicroG-RE và đăng nhập Zalo. Hỗ trợ bản 26.08.01.",
     default = false,
 ) {
     compatibleWith("com.zing.zalo"("26.08.01"))
-    dependsOn(zaloManifest)
+    dependsOn(zaloManifest, disablePlayStoreUpdatesDependency)
     extendWith("extensions/zalo-fcm.dex")
     execute {
         fun has(type: String, name: String, parameters: List<String>, result: String) =

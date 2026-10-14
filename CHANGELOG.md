@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.1
+
+- Thay thế release 0.7.0 đã thu hồi theo yêu cầu chủ repo.
+- Tự chặn cập nhật từ CH Play trong hai mục microG Messenger/Zalo, theo cơ chế của Morphe; giữ mã phiên bản gốc khi app đọc và hỗ trợ vá lại.
+- Viết lại mô tả cả ba mục bằng tiếng Việt dễ hiểu.
+- Giữ nguyên nguồn Morphe/ReVanced, copyright, giấy phép và khối NOTICE từng tệp; bổ sung kiểm thử mã phiên bản và runtime.
+- Chỉ Messenger/Zalo; Gmail tiếp tục thử nghiệm. Chưa kiểm thử thông báo, cài đặt và CH Play trên thiết bị ở phiên này.
+
 ## 0.7.0
 
 - Phát hành chính thức cho Messenger 573.0.0.44.88 và Zalo 26.08.01; không chứa Gmail.

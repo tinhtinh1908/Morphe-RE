@@ -18,12 +18,12 @@ with zipfile.ZipFile(build / "patch.jar") as source, zipfile.ZipFile(target, "w"
         out.write(ROOT / name, name)
     for dex in (build / "patch-dex").glob("classes*.dex"):
         out.write(dex, dex.name)
-    for app in ("messenger", "zalo"):
+    for app in ("messenger", "zalo", "updates"):
         out.write(build / f"extension-{app}-dex/classes.dex", f"extensions/{app}-fcm.dex")
 with zipfile.ZipFile(target) as archive:
     names = archive.namelist()
     assert set(n for n in names if n.startswith("extensions/")) == {
-        "extensions/messenger-fcm.dex", "extensions/zalo-fcm.dex"}
+        "extensions/messenger-fcm.dex", "extensions/zalo-fcm.dex", "extensions/updates-fcm.dex"}
     assert not any("gmail" in n.lower() for n in names), "Gmail must stay experimental"
     for name in ("LICENSE", "LICENSE-patches", "LICENSE-zeldris", "NOTICE-zeldris",
                  "NOTICE-morphe-patches", "NOTICE-morphe-patcher", "THIRD_PARTY_NOTICES.md", "LICENSING.md"):

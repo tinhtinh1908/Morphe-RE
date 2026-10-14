@@ -47,3 +47,16 @@ URL tải, phiên bản và SHA-256 công cụ: `tools.lock.json`. Source archiv
 Giữ nguyên NOTICE-zeldris (commit gốc); bảo toàn thêm NOTICE-morphe-patches và NOTICE-morphe-patcher được kiểm tra ngày 14/10/2026. Đây là thông báo upstream, không phải tuyên bố DTinh sở hữu Morphe. Tên sản phẩm trong manifest/release là DTinh MicroG FCM Patches. Tên kho hiện có là địa chỉ lưu trữ lịch sử, không dùng làm nhãn hiệu sản phẩm.
 
 MPP đóng kèm LICENSE, LICENSE-patches, LICENSE-zeldris, NOTICE-*, LICENSING.md và tài liệu này. Release cung cấp source ZIP đúng commit, kèm hướng dẫn build và SHA-256. Người phân phối phải duy trì quyền truy cập mã nguồn tương ứng cùng bản nhị phân.
+
+
+## Chặn cập nhật CH Play (0.7.1)
+
+- Nguồn: MorpheApp/morphe-patches, commit `e5464395441e916b643af4e2175c4e253e6df487`.
+- Tệp Kotlin gốc: `patches/src/main/kotlin/app/morphe/patches/all/misc/updates/DisablePlayStoreUpdatesPatch.kt`.
+- Tệp Java gốc: `extensions/all/change-version-code/src/main/java/app/morphe/extension/all/versioncode/DisablePlayStoreUpdatesPatch.java`.
+- Copyright 2026 Morphe; GPL v3 cùng thông báo Section 7 ở đầu tệp. Đã giữ nguyên toàn bộ khối thông báo trong các bản chuyển và đóng bản source vào release.
+- Nguồn trước đó do Morphe ghi nhận: ReVanced/revanced-patches @ `724e6d61b2ecd868c1a9a37d465a688e83a74799`, `patches/src/main/kotlin/app/revanced/patches/all/misc/versioncode/ChangeVersionCodePatch.kt`. Liên kết nguồn được giữ nguyên trong đầu tệp Kotlin.
+- Bản chuyển: `src/shared/DisablePlayStoreUpdates.kt`, `extension/vn/dtinh/updates/PlayStoreUpdates.java`.
+- DTinh sửa ngày 14/10/2026: chuyển package/API về Patcher 1.14; ghép thành dependency ẩn của Messenger/Zalo; giữ mã gốc trong manifest để vá lại; chỉ khôi phục khi PackageInfo thuộc hai app; hỗ trợ invoke/range; không dùng AndroidX. Giữ versionCodeMajor.
+- Cơ chế: versionCode ngoài manifest là 2147483647; các lệnh đọc PackageInfo.versionCode/getLongVersionCode được chuyển qua helper trả mã gốc cho app. Không đổi versionName và không ngăn lời nhắc cập nhật nội bộ.
+- Chặn cập nhật theo versionCode từ CH Play; không áp dụng cho app cài bằng root mount. Có thể cần gỡ app trước khi cài bản mã phiên bản thấp hơn; gỡ app có thể mất dữ liệu cục bộ.
