@@ -33,9 +33,11 @@ public final class PlayStoreUpdates {
     private static int originalVersionCode() {
         return 0; // Replaced by the bytecode dependency using saved manifest metadata.
     }
+    private static String originalPackageName() {
+        return ""; // Replaced during patching; do not spoof other installed packages.
+    }
     private static boolean isPatchedApp(PackageInfo info) {
-        return "com.facebook.orca".equals(info.packageName) ||
-               "com.zing.zalo".equals(info.packageName);
+        return originalPackageName().equals(info.packageName);
     }
     @SuppressWarnings("deprecation")
     public static int getVersionCode(PackageInfo info) {

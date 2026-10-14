@@ -57,6 +57,6 @@ MPP đóng kèm LICENSE, LICENSE-patches, LICENSE-zeldris, NOTICE-*, LICENSING.m
 - Copyright 2026 Morphe; GPL v3 cùng thông báo Section 7 ở đầu tệp. Đã giữ nguyên toàn bộ khối thông báo trong các bản chuyển và đóng bản source vào release.
 - Nguồn trước đó do Morphe ghi nhận: ReVanced/revanced-patches @ `724e6d61b2ecd868c1a9a37d465a688e83a74799`, `patches/src/main/kotlin/app/revanced/patches/all/misc/versioncode/ChangeVersionCodePatch.kt`. Liên kết nguồn được giữ nguyên trong đầu tệp Kotlin.
 - Bản chuyển: `src/shared/DisablePlayStoreUpdates.kt`, `extension/vn/dtinh/updates/PlayStoreUpdates.java`.
-- DTinh sửa ngày 14/10/2026: chuyển package/API về Patcher 1.14; ghép thành dependency ẩn của Messenger/Zalo; giữ mã gốc trong manifest để vá lại; chỉ khôi phục khi PackageInfo thuộc hai app; hỗ trợ invoke/range; không dùng AndroidX. Giữ versionCodeMajor.
+- DTinh sửa ngày 14/10/2026: chuyển package/API về Patcher 1.14; ghép thành dependency ẩn của Messenger/Zalo; giữ mã gốc trong manifest để vá lại; chỉ khôi phục khi PackageInfo thuộc đúng ứng dụng đang vá; hỗ trợ invoke/range; không dùng AndroidX. Giữ versionCodeMajor.
 - Cơ chế: versionCode ngoài manifest là 2147483647; các lệnh đọc PackageInfo.versionCode/getLongVersionCode được chuyển qua helper trả mã gốc cho app. Không đổi versionName và không ngăn lời nhắc cập nhật nội bộ.
 - Chặn cập nhật theo versionCode từ CH Play; không áp dụng cho app cài bằng root mount. Có thể cần gỡ app trước khi cài bản mã phiên bản thấp hơn; gỡ app có thể mất dữ liệu cục bộ.

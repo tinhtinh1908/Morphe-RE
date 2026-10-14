@@ -42,6 +42,7 @@ import org.w3c.dom.Element
 private const val EXT = "Lvn/dtinh/updates/PlayStoreUpdates;"
 private const val SAVED = "vn.dtinh.updates.ORIGINAL_VERSION_CODE"
 private var originalVersionCode = 0
+private var originalPackageName = ""
 
 internal fun originalUpdateVersion(current: String, saved: String?): Int {
     val code = current.toIntOrNull()
@@ -60,6 +61,7 @@ internal fun originalUpdateVersion(current: String, saved: String?): Int {
 private val disableUpdatesManifest = resourcePatch {
     execute {
         require(packageMetadata.packageName in setOf("com.facebook.orca", "com.zing.zalo"))
+        originalPackageName = packageMetadata.packageName
         document("AndroidManifest.xml").use { doc ->
             val root = doc.documentElement
             val app = doc.getElementsByTagName("application").item(0) as Element
@@ -122,6 +124,9 @@ internal val disablePlayStoreUpdatesDependency = bytecodePatch(default = false) 
         val method = helper.methods.single { it.name == "originalVersionCode" }
         require((method.implementation?.registerCount ?: 0) >= 1)
         method.replaceInstruction(0, "const v0, 0x${originalVersionCode.toString(16)}")
+        val packageMethod = helper.methods.single { it.name == "originalPackageName" }
+        require((packageMethod.implementation?.registerCount ?: 0) >= 1)
+        packageMethod.replaceInstruction(0, "const-string v0, \"$originalPackageName\"")
         classDefForEach { original ->
             if (original.type.startsWith("Lvn/dtinh/")) return@classDefForEach
             for (source in original.methods) {
