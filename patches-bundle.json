@@ -1,7 +1,7 @@
 {
-  "version": "0.7.0",
-  "download_url": "https://github.com/tinhtinh1908/Morphe-RE/releases/download/v0.7.0/DTinh-MicroG-FCM-0.7.0.mpp",
-  "created_at": "2026-10-14T13:48:35",
-  "description": "- Phát hành chính thức cho Messenger 573.0.0.44.88 và Zalo 26.08.01; không chứa Gmail.\n- Zalo có hai mục: microG FCM và native startup độc lập (ARM64), nguồn zeldrisho/morphe-patches.\n- Hoàn thiện nguồn, ghi công, giấy phép và NOTICE; đóng kèm trong MPP.\n- Đính kèm mã nguồn tương ứng, công cụ build được ghim và SHA-256.\n- Logic FCM giữ nguyên 0.6.0; native giữ nguyên dev.2. Kiểm thử policy/native và kiểm tra gói khi build; chưa kiểm thử khởi động/nhận push trên thiết bị ở phiên phát hành này.\n\nNguồn tương ứng: tải tệp source.zip trong Assets hoặc xem commit 050ac3a0efbd0e629a641f8593518c511b0c93f0. Nguồn/giấy phép: THIRD_PARTY_NOTICES.md và LICENSING.md trong Assets, source và MPP. Gmail không có trong bản chính thức.\n\nChọn bản vá riêng cho ứng dụng trong Morphe Manager. Xem thư mục validation tại commit phát hành để biết phạm vi kiểm chứng. Nhận push/đăng nhập thực tế cần kiểm tra trên thiết bị.\n",
-  "page_url": "https://github.com/tinhtinh1908/Morphe-RE/releases/tag/v0.7.0"
+  "version": "0.7.1",
+  "download_url": "https://github.com/tinhtinh1908/Morphe-RE/releases/download/v0.7.1/DTinh-MicroG-FCM-0.7.1.mpp",
+  "created_at": "2026-10-14T14:28:31",
+  "description": "- Thay thế release 0.7.0 đã thu hồi theo yêu cầu chủ repo.\n- Tự chặn cập nhật từ CH Play trong hai mục microG Messenger/Zalo, theo cơ chế của Morphe; giữ mã phiên bản gốc khi app đọc và hỗ trợ vá lại.\n- Viết lại mô tả cả ba mục bằng tiếng Việt dễ hiểu.\n- Giữ nguyên nguồn Morphe/ReVanced, copyright, giấy phép và khối NOTICE từng tệp; bổ sung kiểm thử mã phiên bản và runtime.\n- Chỉ Messenger/Zalo; Gmail tiếp tục thử nghiệm. Chưa kiểm thử thông báo, cài đặt và CH Play trên thiết bị ở phiên này.\n\nNguồn tương ứng: tải tệp source.zip trong Assets hoặc xem commit 9888345e419fe38676d7cad00c61b1bb345c44e8. Nguồn/giấy phép: THIRD_PARTY_NOTICES.md và LICENSING.md trong Assets, source và MPP. Gmail không có trong bản chính thức.\n\nChọn bản vá riêng cho ứng dụng trong Morphe Manager. Xem thư mục validation tại commit phát hành để biết phạm vi kiểm chứng. Nhận push/đăng nhập thực tế cần kiểm tra trên thiết bị.\n",
+  "page_url": "https://github.com/tinhtinh1908/Morphe-RE/releases/tag/v0.7.1"
 }
