@@ -1,0 +1,24 @@
+name: Withdraw requested release
+on:
+  push:
+    branches: [main]
+    paths: ['.github/withdraw-release.json']
+permissions:
+  contents: write
+jobs:
+  withdraw:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Withdraw 0.7.0
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          python3 - <<'PY'
+          import json, subprocess
+          from pathlib import Path
+          request = json.loads(Path(".github/withdraw-release.json").read_text())
+          assert request["tag"] == "v0.7.0"
+          subprocess.run(["gh", "release", "delete", request["tag"], "--yes"], check=True)
+          PY
