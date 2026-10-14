@@ -1,5 +1,5 @@
 {
-  "version": "0.7.0-dev.2",
-  "target": "e6718856c3df8e0a7d71b856550fd88de37ac497",
-  "prerelease": true
+  "version": "0.7.0",
+  "target": "050ac3a0efbd0e629a641f8593518c511b0c93f0",
+  "prerelease": false
 }
