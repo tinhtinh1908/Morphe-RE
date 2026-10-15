@@ -49,14 +49,17 @@ Giữ nguyên NOTICE-zeldris (commit gốc); bảo toàn thêm NOTICE-morphe-pat
 MPP đóng kèm LICENSE, LICENSE-patches, LICENSE-zeldris, NOTICE-*, LICENSING.md và tài liệu này. Release cung cấp source ZIP đúng commit, kèm hướng dẫn build và SHA-256. Người phân phối phải duy trì quyền truy cập mã nguồn tương ứng cùng bản nhị phân.
 
 
-## Chặn cập nhật CH Play (0.7.1)
+## Disable Play Store updates — bản test 0.7.2-dev.1
 
-- Nguồn: MorpheApp/morphe-patches, commit `e5464395441e916b643af4e2175c4e253e6df487`.
-- Tệp Kotlin gốc: `patches/src/main/kotlin/app/morphe/patches/all/misc/updates/DisablePlayStoreUpdatesPatch.kt`.
-- Tệp Java gốc: `extensions/all/change-version-code/src/main/java/app/morphe/extension/all/versioncode/DisablePlayStoreUpdatesPatch.java`.
-- Copyright 2026 Morphe; GPL v3 cùng thông báo Section 7 ở đầu tệp. Đã giữ nguyên toàn bộ khối thông báo trong các bản chuyển và đóng bản source vào release.
-- Nguồn trước đó do Morphe ghi nhận: ReVanced/revanced-patches @ `724e6d61b2ecd868c1a9a37d465a688e83a74799`, `patches/src/main/kotlin/app/revanced/patches/all/misc/versioncode/ChangeVersionCodePatch.kt`. Liên kết nguồn được giữ nguyên trong đầu tệp Kotlin.
-- Bản chuyển: `src/shared/DisablePlayStoreUpdates.kt`, `extension/vn/dtinh/updates/PlayStoreUpdates.java`.
-- DTinh sửa ngày 14/10/2026: chuyển package/API về Patcher 1.14; ghép thành dependency ẩn của Messenger/Zalo; giữ mã gốc trong manifest để vá lại; chỉ khôi phục khi PackageInfo thuộc đúng ứng dụng đang vá; hỗ trợ invoke/range; không dùng AndroidX. Giữ versionCodeMajor.
-- Cơ chế: versionCode ngoài manifest là 2147483647; các lệnh đọc PackageInfo.versionCode/getLongVersionCode được chuyển qua helper trả mã gốc cho app. Không đổi versionName và không ngăn lời nhắc cập nhật nội bộ.
-- Chặn cập nhật theo versionCode từ CH Play; không áp dụng cho app cài bằng root mount. Có thể cần gỡ app trước khi cài bản mã phiên bản thấp hơn; gỡ app có thể mất dữ liệu cục bộ.
+- Nguồn: MorpheApp/morphe-patches @ e5464395441e916b643af4e2175c4e253e6df487.
+- Kotlin gốc: patches/src/main/kotlin/app/morphe/patches/all/misc/updates/DisablePlayStoreUpdatesPatch.kt.
+- Java gốc: extensions/all/change-version-code/src/main/java/app/morphe/extension/all/versioncode/DisablePlayStoreUpdatesPatch.java.
+- Copyright 2026 Morphe; GPL v3. Giữ nguyên khối thông báo từng tệp; bản sao trong NOTICE-update-blocking.
+- Morphe ghi nguồn trước đó là ReVanced/revanced-patches @ 724e6d61b2ecd868c1a9a37d465a688e83a74799, patches/src/main/kotlin/app/revanced/patches/all/misc/versioncode/ChangeVersionCodePatch.kt; giữ nguyên liên kết ở đầu mã Kotlin.
+- DTinh chuyển package/class/API về Patcher 1.14, bỏ annotation AndroidX chỉ phục vụ compile, dùng API mutable class thay các utility mới của upstream. Giữ logic helper gốc: đổi versionCode manifest lên Int.MAX_VALUE, khi app đọc giá trị này thì trả lại mã phiên bản trước khi vá; giữ các bit versionCodeMajor. Không dùng metadata lưu phiên bản hay kiểm tra package riêng của bản 0.7.1.
+- Mục độc lập mang tên Disable Play Store updates; không tự phụ thuộc vào Messenger/Zalo FCM. Giới hạn tương thích hai app/version hiện hỗ trợ. Helper và bản vá microG đóng gói riêng, chỉ chọn mục nào mới merge phần đó.
+- Chặn CH Play theo mã phiên bản, không chặn lời nhắc cập nhật nội bộ; có thể gây lỗi với một số app và không có hiệu lực khi cài qua root mount. Cài lại bản mã thấp hơn có thể cần gỡ app trước.
+- Bản chính thức 0.7.2 phát hành từ bản test 0.7.2-dev.2; mã nguồn tương ứng nằm trong MPP và source ZIP đính kèm release.
+
+
+Bản test 0.7.2-dev.2: DTinh Việt hóa tên/mô tả bốn mục, bỏ biến và import không dùng, bỏ thư mục build dư, tính trước tập tên FCM chuyển tuyến thay vì tạo lại ở mỗi lần so khớp. Logic Morphe và các hook đăng ký giữ nguyên.

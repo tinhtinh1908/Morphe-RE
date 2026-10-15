@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 version = sys.argv[1]
 build = ROOT / "build"
 target = ROOT / "dist" / f"DTinh-MicroG-FCM-{version}.mpp"
-manifest = ("Manifest-Version: 1.0\r\nName: DTinh MicroG FCM Patches\r\n"
+manifest = ("Manifest-Version: 1.0\r\nName: DTinh - Bản vá thông báo\r\n"
             f"Version: {version}\r\nAuthor: DTinh\r\nLicense: GPL-3.0-only\r\n"
             "Patcher-Version: 1.14.0\r\n\r\n")
 with zipfile.ZipFile(build / "patch.jar") as source, zipfile.ZipFile(target, "w", zipfile.ZIP_DEFLATED) as out:
@@ -14,6 +14,16 @@ with zipfile.ZipFile(build / "patch.jar") as source, zipfile.ZipFile(target, "w"
         if not name.endswith("/") and name != "META-INF/MANIFEST.MF":
             out.writestr(name, source.read(name))
     out.writestr("META-INF/MANIFEST.MF", manifest)
+    # Ship corresponding source inside this local test MPP; no GitHub upload needed.
+    files = [ROOT / "build.sh", ROOT / "VERSION", ROOT / "tools.lock.json", ROOT / "README.md"]
+    files.extend(ROOT.glob("LICENSE*"))
+    files.extend(ROOT.glob("NOTICE*"))
+    files.extend([ROOT / "LICENSING.md", ROOT / "THIRD_PARTY_NOTICES.md"])
+    for folder in ("src", "extension", "scripts", "tests"):
+        files.extend(p for p in (ROOT / folder).rglob("*") if p.is_file()
+                     and "__pycache__" not in p.parts)
+    for p in files:
+        out.write(p, "source/" + str(p.relative_to(ROOT)))
     for name in ("LICENSE", "LICENSE-patches", "LICENSE-zeldris", "NOTICE-zeldris", "NOTICE-morphe-patches", "NOTICE-update-blocking", "NOTICE-morphe-patcher", "THIRD_PARTY_NOTICES.md", "LICENSING.md"):
         out.write(ROOT / name, name)
     for dex in (build / "patch-dex").glob("classes*.dex"):

@@ -2,7 +2,6 @@
 package vn.dtinh.patches.messenger
 
 import vn.dtinh.patches.microGRoutingDependency
-import vn.dtinh.patches.disablePlayStoreUpdatesDependency
 import app.morphe.patcher.patch.bytecodePatch
 import app.morphe.patcher.patch.resourcePatch
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
@@ -26,7 +25,6 @@ private val repairManifest = resourcePatch {
             "This repair was verified only against Messenger 573.0.0.44.88."
         }
         document("AndroidManifest.xml").use { doc ->
-            val app = doc.getElementsByTagName("application").item(0) as Element
             val metadata = doc.getElementsByTagName("meta-data")
             require((0 until metadata.length).any {
                 val e = metadata.item(it) as Element
@@ -50,12 +48,12 @@ private val repairManifest = resourcePatch {
 }
 
 val messengerMicroGRepair = bytecodePatch(
-    name = "Messenger microG FCM support",
-    description = "Giúp Messenger nhận thông báo qua MicroG-RE khi máy không có dịch vụ Google. Tự chặn cập nhật từ CH Play để giữ bản đã vá. Cần cài MicroG-RE và đăng nhập Messenger. Hỗ trợ bản 573.0.0.44.88.",
+    name = "Thông báo Messenger qua microG",
+    description = "Nhận thông báo qua MicroG-RE. Cần cài MicroG-RE và đăng nhập.",
     default = false,
 ) {
     compatibleWith("com.facebook.orca"("573.0.0.44.88"))
-    dependsOn(repairManifest, disablePlayStoreUpdatesDependency)
+    dependsOn(repairManifest)
     extendWith("extensions/messenger-fcm.dex")
     execute {
         // Reflection targets are deliberately version-specific; fail before emitting a broken hook.

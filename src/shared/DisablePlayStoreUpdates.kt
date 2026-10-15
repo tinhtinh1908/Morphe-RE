@@ -25,7 +25,7 @@
  */
 
 // SPDX-License-Identifier: GPL-3.0-only
-// Adapted by DTinh on 2026-10-14 for Patcher 1.14 and the two supported apps.
+// Adapted by DTinh on 2026-10-14 for Patcher 1.14: selectable patch for Messenger/Zalo.
 // Keep original file notice above. Source commit: e5464395441e916b643af4e2175c4e253e6df487.
 package vn.dtinh.patches
 
@@ -37,44 +37,14 @@ import app.morphe.patcher.util.proxy.mutableTypes.MutableMethod
 import com.android.tools.smali.dexlib2.Opcode
 import com.android.tools.smali.dexlib2.iface.instruction.*
 import com.android.tools.smali.dexlib2.iface.reference.*
-import org.w3c.dom.Element
 
 private const val EXT = "Lvn/dtinh/updates/PlayStoreUpdates;"
-private const val SAVED = "vn.dtinh.updates.ORIGINAL_VERSION_CODE"
 private var originalVersionCode = 0
-private var originalPackageName = ""
-
-internal fun originalUpdateVersion(current: String, saved: String?): Int {
-    val code = current.toIntOrNull()
-    require(code != null && code > 0) { "Mã phiên bản ứng dụng không hợp lệ." }
-    if (code != Int.MAX_VALUE) {
-        require(saved == null || saved.toIntOrNull() == code) {
-            "Thông tin phiên bản gốc không khớp; hãy dùng APK gốc."
-        }
-        return code
-    }
-    return saved?.toIntOrNull()?.also {
-        require(it > 0 && it < Int.MAX_VALUE) { "Không xác định được phiên bản gốc; hãy dùng APK gốc." }
-    } ?: error("APK đã đổi mã phiên bản nhưng thiếu thông tin gốc; hãy dùng APK gốc.")
-}
 
 private val disableUpdatesManifest = resourcePatch {
     execute {
-        require(packageMetadata.packageName in setOf("com.facebook.orca", "com.zing.zalo"))
-        originalPackageName = packageMetadata.packageName
         document("AndroidManifest.xml").use { doc ->
-            val root = doc.documentElement
-            val app = doc.getElementsByTagName("application").item(0) as Element
-            val nodes = app.getElementsByTagName("meta-data")
-            val saved = (0 until nodes.length).map { nodes.item(it) as Element }
-                .filter { it.getAttribute("android:name") == SAVED }
-            require(saved.size <= 1) { "Thông tin phiên bản gốc bị trùng." }
-            originalVersionCode = originalUpdateVersion(root.getAttribute("android:versionCode"),
-                saved.singleOrNull()?.getAttribute("android:value"))
-            val node = saved.singleOrNull() ?: doc.createElement("meta-data").also { app.appendChild(it) }
-            node.setAttribute("android:name", SAVED)
-            node.removeAttribute("android:resource")
-            node.setAttribute("android:value", originalVersionCode.toString())
+            originalVersionCode = doc.documentElement.getAttribute("android:versionCode").toInt()
         }
     }
     finalize {
@@ -106,7 +76,8 @@ internal fun rewriteUpdateVersionReads(method: MutableMethod): Int {
                 is RegisterRangeInstruction -> instruction.startRegister
                 else -> error("Dạng lệnh đọc phiên bản không được hỗ trợ.")
             }
-            // A call with an ignored result needs no extra instruction.
+            if (instructions.getOrNull(index + 1)?.opcode != Opcode.MOVE_RESULT_WIDE) continue
+            // Keep the original move-result-wide, as Morphe does.
             method.replaceInstruction(index,
                 "invoke-static/range {v$register .. v$register}, $EXT->getVersionCodeLong(Landroid/content/pm/PackageInfo;)J")
             changed++
@@ -115,8 +86,13 @@ internal fun rewriteUpdateVersionReads(method: MutableMethod): Int {
     return changed
 }
 
-// Unnamed dependency: enabled automatically inside the Messenger and Zalo FCM choices.
-internal val disablePlayStoreUpdatesDependency = bytecodePatch(default = false) {
+// Standalone selectable patch, using Morphe's version-code and helper behavior.
+val disablePlayStoreUpdatesPatch = bytecodePatch(
+    name = "Chặn cập nhật CH Play",
+    description = "Giữ bản đã vá, không cho CH Play cập nhật. Có thể gây lỗi với một số ứng dụng.",
+    default = false,
+) {
+    compatibleWith("com.facebook.orca"("573.0.0.44.88"), "com.zing.zalo"("26.08.01"))
     dependsOn(disableUpdatesManifest)
     extendWith("extensions/updates-fcm.dex")
     finalize {
@@ -124,11 +100,8 @@ internal val disablePlayStoreUpdatesDependency = bytecodePatch(default = false) 
         val method = helper.methods.single { it.name == "originalVersionCode" }
         require((method.implementation?.registerCount ?: 0) >= 1)
         method.replaceInstruction(0, "const v0, 0x${originalVersionCode.toString(16)}")
-        val packageMethod = helper.methods.single { it.name == "originalPackageName" }
-        require((packageMethod.implementation?.registerCount ?: 0) >= 1)
-        packageMethod.replaceInstruction(0, "const-string v0, \"$originalPackageName\"")
         classDefForEach { original ->
-            if (original.type.startsWith("Lvn/dtinh/")) return@classDefForEach
+            if (original.type.startsWith("Lvn/dtinh/") || original.type.startsWith("Lapp/morphe/extension/")) return@classDefForEach
             for (source in original.methods) {
                 val relevant = source.implementation?.instructions?.any {
                     val ref = (it as? ReferenceInstruction)?.reference

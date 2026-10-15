@@ -14,4 +14,4 @@ Tên sản phẩm: **DTinh MicroG FCM Patches**, dự án độc lập, tương 
 
 Không có bảo hành; xem đầy đủ điều khoản trong các tệp giấy phép. Khi phân phối lại, giữ giấy phép, ghi công và NOTICE; đánh dấu các sửa đổi; cung cấp mã nguồn tương ứng và script build cho đúng bản nhị phân. Không chỉ đổi tên tác giả thành người đóng gói.
 
-Mã nguồn tương ứng của 0.7.1 được đính kèm cùng release, gồm mã Kotlin/Java, tests, build.sh, scripts và tools.lock.json. Dùng JDK 21, Python 3.10+ và `bash build.sh`. Công cụ bên ngoài tải theo URL/version/SHA-256 trong tools.lock.json. Các dependency patcher/smali giữ nguồn upstream được liệt kê trong THIRD_PARTY_NOTICES.md. Không đóng gói lại APK ứng dụng, SDK hoặc microG trong MPP.
+Mã nguồn tương ứng của 0.7.2 được đính kèm cùng release và bên trong MPP tại thư mục source/, gồm mã Kotlin/Java, tests, build.sh, scripts và tools.lock.json. Dùng JDK 21, Python 3.10+ và `bash build.sh`. Công cụ bên ngoài tải theo URL/version/SHA-256 trong tools.lock.json. Các dependency patcher/smali giữ nguồn upstream được liệt kê trong THIRD_PARTY_NOTICES.md. Không đóng gói lại APK ứng dụng, SDK hoặc microG trong MPP.

@@ -42,23 +42,17 @@ public class UpdateRuntimeTest {
         }
         info.packageName = "com.zing.zalo";
         info.versionCode = Integer.MAX_VALUE;
-        check(PlayStoreUpdates.getVersionCode(info) == Integer.MAX_VALUE);
+        check(PlayStoreUpdates.getVersionCode(info) == 12345);
         info.packageName = "other.app";
         info.versionCode = Integer.MAX_VALUE;
-        check(PlayStoreUpdates.getVersionCode(info) == Integer.MAX_VALUE);
-        check(PlayStoreUpdates.getVersionCodeLong(info) == (7L << 32 | 2147483647L));
+        check(PlayStoreUpdates.getVersionCode(info) == 12345);
+        check(PlayStoreUpdates.getVersionCodeLong(info) == (7L << 32 | 12345L));
         info.packageName = null;
-        check(PlayStoreUpdates.getVersionCode(info) == Integer.MAX_VALUE);
-        System.out.println("Update blocking runtime: PASS (own app, other supported app, original int/long, major bits, no mutation, other packages)");
+        check(PlayStoreUpdates.getVersionCode(info) == 12345);
+        System.out.println("Update blocking runtime: PASS (Morphe sentinel behavior, original int/long, major bits, no mutation, other packages)");
     }
 }
 """)
 java = Path(os.environ["JAVA_HOME"]) / "bin"
-subprocess.run([str(java / "javac"), "--release", "8", "-d", str(target), str(stub), str(helper), str(test)], check=True)
-subprocess.run([str(java / "java"), "-cp", str(target), "UpdateRuntimeTest"], check=True)
-
-# Repeat the same checks with Zalo as the patched package.
-helper.write_text(source.replace("return 0;", "return 12345;").replace('return "";', 'return "com.zing.zalo";'))
-test.write_text(test.read_text().replace("com.facebook.orca", "__OWN__").replace("com.zing.zalo", "com.facebook.orca").replace("__OWN__", "com.zing.zalo"))
 subprocess.run([str(java / "javac"), "--release", "8", "-d", str(target), str(stub), str(helper), str(test)], check=True)
 subprocess.run([str(java / "java"), "-cp", str(target), "UpdateRuntimeTest"], check=True)

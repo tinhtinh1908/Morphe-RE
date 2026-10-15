@@ -14,12 +14,6 @@ private fun fixture(instructions: List<Instruction>, registers: Int = 256) = Mut
         ImmutableMethodImplementation(registers, instructions, emptyList(), emptyList())))
 
 fun main() {
-    check(originalUpdateVersion("12345", null) == 12345)
-    check(originalUpdateVersion("2147483647", "12345") == 12345)
-    for ((current, saved) in listOf("0" to null, "bad" to null, "2147483647" to null,
-        "2147483647" to "2147483647", "12345" to "54321")) {
-        check(runCatching { originalUpdateVersion(current, saved) }.isFailure)
-    }
     val field = ImmutableFieldReference("Landroid/content/pm/PackageInfo;", "versionCode", "I")
     for ((dest, receiver) in listOf(0 to 1, 15 to 15, 4 to 0)) {
         val m = fixture(listOf(ImmutableInstruction22c(Opcode.IGET, dest, receiver, field),
@@ -37,6 +31,7 @@ fun main() {
         ImmutableInstruction35c(Opcode.INVOKE_VIRTUAL, 1, 15, 0, 0, 0, 0, longRef),
         ImmutableInstruction11x(Opcode.MOVE_RESULT_WIDE, 200),
         ImmutableInstruction3rc(Opcode.INVOKE_VIRTUAL_RANGE, 255, 1, longRef),
+        ImmutableInstruction11x(Opcode.MOVE_RESULT_WIDE, 202),
         ImmutableInstruction10x(Opcode.RETURN_VOID)))
     check(rewriteUpdateVersionReads(m) == 2)
     val out = m.implementation!!.instructions.toList()
@@ -48,5 +43,5 @@ fun main() {
     val other = fixture(listOf(ImmutableInstruction22c(Opcode.IGET, 0, 1,
         ImmutableFieldReference("Lother/Info;", "versionCode", "I")), ImmutableInstruction10x(Opcode.RETURN_VOID)))
     check(rewriteUpdateVersionReads(other) == 0)
-    println("Update blocking DEX tests: PASS (original/reapply/reject metadata, same registers, long/range/high registers, unrelated fields)")
+    println("Update blocking DEX tests: PASS (same registers, long/range/high registers, unrelated fields)")
 }

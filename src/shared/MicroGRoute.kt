@@ -35,6 +35,8 @@ private val redirects = fcmNames.associateWith { it.replaceFirst("com.google", V
 
 internal fun redirect(value: String): String? = redirects[value]
 
+private val redirectedFcmNames = fcmNames.map { it.replaceFirst("com.google", VENDOR) }.toSet()
+
 private var hasExistingRoute = false
 
 // Resource dependency is unnamed so the user selects one public patch only.
@@ -157,7 +159,7 @@ internal val microGRoutingDependency = bytecodePatch(default = false) {
                 val literals = originalInstructions.mapNotNull {
                     ((it as? ReferenceInstruction)?.reference as? StringReference)?.string
                 }.toSet()
-                existingFcmRoutes += literals.count { it in fcmNames.map { name -> name.replaceFirst("com.google", VENDOR) } }
+                existingFcmRoutes += literals.count { it in redirectedFcmNames }
                 val knownCheck = method.returnType == "I" &&
                     method.parameterTypes.map { it.toString() } == listOf("Landroid/content/Context;", "I") &&
                     method.accessFlags and AccessFlags.STATIC.value != 0 &&
@@ -169,7 +171,7 @@ internal val microGRoutingDependency = bytecodePatch(default = false) {
                         ?: return@mapIndexedNotNull null
                     redirect(value)?.let { Triple(index, instruction as OneRegisterInstruction, it) }
                 }
-                if (replacements.isEmpty() && !(knownCheck )) null
+                if (replacements.isEmpty() && !knownCheck) null
                 else Triple(method, replacements, knownCheck)
             }
             val pendingFields = original.staticFields.filter {
@@ -186,7 +188,7 @@ internal val microGRoutingDependency = bytecodePatch(default = false) {
                         strings++
                         if (replacement != MICROG) fcmRoutes++
                     }
-                    if (knownCheck ) {
+                    if (knownCheck) {
                         method.addInstructions(0, "const/4 v0, 0x0\nreturn v0")
                         checks++
                     }

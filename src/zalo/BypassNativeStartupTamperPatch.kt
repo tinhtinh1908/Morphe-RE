@@ -30,8 +30,8 @@ private const val HEX_RADIX = 16
  */
 @Suppress("unused")
 val bypassZaloNativeStartupTamperPatch = rawResourcePatch(
-    name = "Bỏ qua kiểm tra chỉnh sửa khi khởi động Zalo",
-    description = "Giúp Zalo đã chỉnh sửa không tự thoát khi mở do kiểm tra chống sửa ứng dụng. Chỉ hỗ trợ Zalo 26.08.01 trên máy ARM64. Chọn thêm mục này nếu cần; không thay thế mục nhận thông báo qua microG. Nguồn: Zeldris Patches (GPL v3).",
+    name = "Sửa lỗi Zalo tự thoát",
+    description = "Bỏ kiểm tra chống chỉnh sửa khi mở Zalo. Chỉ hỗ trợ ARM64.",
     default = false,
 ) {
     compatibleWith("com.zing.zalo"("26.08.01"))

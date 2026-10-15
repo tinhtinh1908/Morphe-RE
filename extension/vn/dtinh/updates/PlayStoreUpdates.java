@@ -21,34 +21,49 @@
  * merchantability and fitness for a particular purpose, are disclaimed.
  */
 
-// SPDX-License-Identifier: GPL-3.0-only
-// Adapted by DTinh on 2026-10-14: package, app-scoped checks, no AndroidX dependency.
-// Upstream commit e5464395441e916b643af4e2175c4e253e6df487; see THIRD_PARTY_NOTICES.md.
+// Adapted by DTinh 2026-10-14: package/class name and remove compile-only AndroidX annotation.
+// Runtime logic is unchanged from Morphe e5464395441e916b643af4e2175c4e253e6df487.
 package vn.dtinh.updates;
 
 import android.content.pm.PackageInfo;
 
-public final class PlayStoreUpdates {
-    private PlayStoreUpdates() {}
+
+
+
+@SuppressWarnings("unused")
+public class PlayStoreUpdates {
+
     private static int originalVersionCode() {
-        return 0; // Replaced by the bytecode dependency using saved manifest metadata.
+        return 0; // Return value is changed during patching.
     }
-    private static String originalPackageName() {
-        return ""; // Replaced during patching; do not spoof other installed packages.
-    }
-    private static boolean isPatchedApp(PackageInfo info) {
-        return originalPackageName().equals(info.packageName);
-    }
+
+    /**
+     * Injection point.
+     */
     @SuppressWarnings("deprecation")
     public static int getVersionCode(PackageInfo info) {
-        return isPatchedApp(info) && info.versionCode == Integer.MAX_VALUE
-            ? originalVersionCode() : info.versionCode;
+        final int versionCode = info.versionCode;
+
+        if (versionCode == Integer.MAX_VALUE) {
+            return originalVersionCode();
+        }
+        return versionCode;
     }
+
+    /**
+     * Injection point.
+     */
     public static long getVersionCodeLong(PackageInfo info) {
-        long code = info.getLongVersionCode();
-        return isPatchedApp(info) && (code & 0xffffffffL) == Integer.MAX_VALUE
-            ? (code & 0xffffffff00000000L) | (originalVersionCode() & 0xffffffffL)
-            : code;
+        final long versionCode = info.getLongVersionCode();
+
+        final long lowerBitMask = 0x00000000FFFFFFFFL;
+        if ((versionCode & lowerBitMask) == Integer.MAX_VALUE) {
+            // Keep the upper 32 bits (versionCodeMajor) untouched,
+            // swap in the original version code for the lower 32 bits.
+            return (versionCode & 0xFFFFFFFF00000000L)
+                    | (originalVersionCode() & lowerBitMask);
+        }
+        return versionCode;
     }
 }
 

@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.7.2
+
+- Phát hành từ bản test 0.7.2-dev.2: bốn mục có tên và mô tả tiếng Việt ngắn gọn.
+- Chặn cập nhật CH Play là mục riêng theo cơ chế Morphe; hai bản vá thông báo không tự bật chức năng này.
+- Giữ bản vá thông báo Messenger/Zalo và sửa lỗi Zalo tự thoát; không chứa Gmail.
+- Bỏ biến, import và thư mục build dư; tính trước tập tên FCM để giảm tạo dữ liệu lặp.
+- Kèm mã nguồn tương ứng, giấy phép và NOTICE Morphe/ReVanced/Zeldris.
+- Kiểm thử tự động khi build; chưa xác nhận hành vi trên thiết bị thực trong phiên phát hành.
+
 ## 0.7.1
 
 - Thay thế release 0.7.0 đã thu hồi theo yêu cầu chủ repo.
