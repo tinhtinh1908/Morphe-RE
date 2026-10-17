@@ -34,7 +34,8 @@ with zipfile.ZipFile(target) as archive:
     names = archive.namelist()
     assert set(n for n in names if n.startswith("extensions/")) == {
         "extensions/messenger-fcm.dex", "extensions/zalo-fcm.dex", "extensions/updates-fcm.dex"}
-    assert not any("gmail" in n.lower() for n in names), "Gmail must stay experimental"
+    # Gmail source may be archived for review; its compiled patch stays on dev.
+    assert not any("gmail" in n.lower() for n in names if not n.startswith("source/")), "Gmail must stay experimental"
     for name in ("LICENSE", "LICENSE-patches", "LICENSE-zeldris", "NOTICE-zeldris",
                  "NOTICE-morphe-patches", "NOTICE-update-blocking", "NOTICE-morphe-patcher", "THIRD_PARTY_NOTICES.md", "LICENSING.md"):
         assert archive.read(name) == (ROOT / name).read_bytes(), name
