@@ -2,82 +2,24 @@
 package vn.dtinh.patches.gmail
 
 import app.morphe.patcher.patch.bytecodePatch
-import app.morphe.patcher.patch.resourcePatch
 import app.morphe.patcher.extensions.InstructionExtensions.addInstructions
 import app.morphe.patcher.extensions.InstructionExtensions.replaceInstruction
 import com.android.tools.smali.dexlib2.Opcode
-import com.android.tools.smali.dexlib2.iface.instruction.*
-import com.android.tools.smali.dexlib2.iface.reference.*
+import com.android.tools.smali.dexlib2.iface.instruction.NarrowLiteralInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.OneRegisterInstruction
+import com.android.tools.smali.dexlib2.iface.instruction.ReferenceInstruction
+import com.android.tools.smali.dexlib2.iface.reference.MethodReference
+import com.android.tools.smali.dexlib2.iface.reference.StringReference
 import com.android.tools.smali.dexlib2.builder.instruction.BuilderInstruction31c
+import com.android.tools.smali.dexlib2.builder.instruction.BuilderInstruction31i
 import com.android.tools.smali.dexlib2.immutable.reference.ImmutableStringReference
-import org.w3c.dom.Element
-import java.security.MessageDigest
+import app.morphe.patcher.util.proxy.mutableTypes.MutableClass
 
-private const val VERSION = "2026.09.21.992487546.Release"
-private const val MICROG = "app.revanced.android.gms"
-private const val SIGNER = "38918a453d07199354f8b19af05ec6562ced5788"
-private const val STORE = "dtinh.microg.gmail.fcm.v1"
-private const val EXT = "Lvn/dtinh/gmail/GmailBackendV7;"
-private val names = listOf("android.c2dm.intent.REGISTER", "android.c2dm.intent.UNREGISTER",
-    "android.c2dm.intent.REGISTRATION", "android.c2dm.intent.RECEIVE",
-    "android.c2dm.permission.SEND", "android.c2dm.permission.RECEIVE", "iid.TOKEN_REQUEST", "android.gcm.intent.SEND")
-private val routes = names.associate { "com.google.$it" to "app.revanced.$it" } + mapOf(
-    "com.google.android.gms" to MICROG,
-    "com.google.android.gms.auth.accounts" to "$MICROG.auth.accounts",
-    "com.google.android.gms.auth.api.signin.service.START" to "$MICROG.auth.api.signin.service.START",
-    "com.google.android.gms.auth.GOOGLE_SIGN_IN" to "$MICROG.auth.GOOGLE_SIGN_IN",
-    "com.google.android.gms.auth.account.data.service.START" to "$MICROG.auth.account.data.service.START",
-    "com.google.android.gms.auth.service.START" to "$MICROG.auth.service.START",
-    "com.google" to "app.revanced"
-)
-private val cacheTypes = setOf("Lbrjc;", "Lcfsd;", "Lcftl;", "Lcftz;")
-private val gmailManifest = resourcePatch {
-    execute {
-        require(packageMetadata.packageName == "com.google.android.gm" && packageMetadata.versionName == VERSION) { "Gmail version not supported by this experimental patch." }
-        document("AndroidManifest.xml").use { doc ->
-            val root = doc.documentElement
-            require(root.getAttribute("android:requiredSplitTypes").isEmpty()) { "Gmail needs its ABI/density splits. Merge the complete APKS before patching; base.apk alone is unsupported." }
-            val app = doc.getElementsByTagName("application").item(0) as Element
-            val meta = app.getElementsByTagName("meta-data")
-            val values = (0 until meta.length).associate { val e = meta.item(it) as Element; e.getAttribute("android:name") to e.getAttribute("android:value") }
-            if (values["app.revanced.MICROG_PACKAGE_NAME"] == MICROG) {
-                require(values["$MICROG.SPOOFED_PACKAGE_NAME"] == "com.google.android.gm" && values["$MICROG.SPOOFED_PACKAGE_SIGNATURE"] == SIGNER) { "Original Gmail identity metadata is invalid." }
-            } else {
-                val certs = packageMetadata.signingCertificates.values.flatten().map { MessageDigest.getInstance("SHA-1").digest(it.encoded).joinToString("") { b -> "%02x".format(b.toInt() and 255) } }.distinct()
-                require(certs.isEmpty() || certs == listOf(SIGNER)) { "Unexpected signed Gmail input; use the original split set or its unsigned merged APK." }
-            }
-            val all = doc.getElementsByTagName("*")
-            for (i in 0 until all.length) {
-                val e = all.item(i) as Element
-                if (e.tagName in setOf("action", "uses-permission", "permission", "package")) routes[e.getAttribute("android:name")]?.let { e.setAttribute("android:name", it) }
-                routes[e.getAttribute("android:permission")]?.let { e.setAttribute("android:permission", it) }
-            }
-            val receiver = (0 until all.length).map { all.item(it) as Element }.single { it.tagName == "receiver" && it.getAttribute("android:name") == "com.google.firebase.iid.FirebaseInstanceIdReceiver" }
-            require(receiver.getAttribute("android:permission") == "app.revanced.android.c2dm.permission.SEND")
-            receiver.setAttribute("android:enabled", "true")
-            val queries = (doc.getElementsByTagName("queries").item(0) as? Element) ?: doc.createElement("queries").also { root.appendChild(it) }
-            if ((0 until queries.childNodes.length).none { (queries.childNodes.item(it) as? Element)?.getAttribute("android:name") == MICROG }) queries.appendChild(doc.createElement("package").also { it.setAttribute("android:name", MICROG) })
-            for ((key, value) in mapOf("app.revanced.MICROG_PACKAGE_NAME" to MICROG, "$MICROG.SPOOFED_PACKAGE_NAME" to "com.google.android.gm", "$MICROG.SPOOFED_PACKAGE_SIGNATURE" to SIGNER)) {
-                val node = (0 until meta.length).map { meta.item(it) as Element }.firstOrNull { it.getAttribute("android:name") == key } ?: doc.createElement("meta-data").also { app.appendChild(it) }
-                node.setAttribute("android:name", key); node.removeAttribute("android:resource"); node.setAttribute("android:value", value)
-            }
-        }
-        var sync = 0
-        get("res/xml").walkTopDown().filter { it.isFile && it.extension == "xml" }.forEach { file ->
-            document("res/xml/${file.name}").use { doc ->
-                val e = doc.documentElement
-                if (e.tagName == "sync-adapter" && e.getAttribute("android:accountType") in setOf("com.google", "app.revanced")) {
-                    e.setAttribute("android:accountType", "app.revanced"); sync++
-                }
-            }
-        }
-        require(sync >= 1) { "Gmail mail sync adapter is missing." }
-    }
-}
+private data class StringEdit(val index: Int, val register: Int, val value: String)
 
 val gmailMicroGSupport = bytecodePatch(
-    name = "Gmail microG support (experimental)",
-    description = "Gmail $VERSION: chuyển tài khoản cá nhân, OAuth, đồng bộ thư và FCM/Chime sang MicroG-RE 7.2.1; giữ nguyên tên gói ứng dụng. Bản thử nghiệm, chưa xác minh hoạt động trên thiết bị.",
+    name = "Gmail qua microG (thử nghiệm)",
+    description = "Đăng nhập và nhận thông báo qua MicroG-RE. Bản thử nghiệm, cần kiểm tra trên máy.",
     default = false,
 ) {
     compatibleWith("com.google.android.gm"(VERSION))
@@ -88,34 +30,80 @@ val gmailMicroGSupport = bytecodePatch(
         require(auth.methods.any { it.name == "b" && it.returnType == "Lcom/google/android/gms/auth/TokenData;" } &&
             auth.methods.any { it.name == "m" && it.parameterTypes.map { p -> p.toString() } == listOf("Landroid/accounts/Account;") }) { "Gmail token/account layout changed" }
         require(classDefByOrNull("Labnv;") != null && classDefByOrNull("Lzlp;") != null && classDefByOrNull("Lcom/google/android/libraries/hub/firebase/FirebaseMessagingServiceImpl;") != null) { "Gmail OAuth/Chime/FCM layout changed" }
+        var accountClassifiers = 0
+        var feedbackActions = 0
+        var chimeraAuthorities = 0
         var accounts = 0; var stores = 0; var authClass = 0; var checks = 0; var fcm = 0
         classDefForEach { original ->
             if (original.type.startsWith("Lvn/dtinh/")) return@classDefForEach
-            val mutable = mutableClassDefBy(original)
-            for (method in mutable.methods.toList()) {
-                val instructions = method.implementation?.instructions?.toList() ?: continue
+            // Keep untouched classes DEX-backed. Materializing every Gmail class exhausts
+            // the Android patching heap; only classes with edits need mutable methods.
+            var mutable: MutableClass? = null
+            for (method in original.methods) {
+                val instructions = method.implementation?.instructions ?: continue
+                var edits: MutableList<StringEdit>? = null
+                val availability = original.type == "Labwk;" && method.name == "b" &&
+                    method.parameterTypes.map { it.toString() } == listOf("Landroid/content/Context;", "I") && method.returnType == "I"
+                var existingHook = false
                 instructions.forEachIndexed { index, ins ->
-                    val value = ((ins as? ReferenceInstruction)?.reference as? StringReference)?.string ?: return@forEachIndexed
-                    if (value in setOf("com.google", "app.revanced")) accounts++
+                    val reference = (ins as? ReferenceInstruction)?.reference
+                    if (availability && reference is MethodReference && reference.definingClass == EXT) existingHook = true
+                    val value = (reference as? StringReference)?.string ?: return@forEachIndexed
+                    if (value in accountTypes) accounts++
                     if (original.type == "Laboa;" && value == "com.google.android.gms.auth.GetToken") authClass++
-                    if (value in names.map { "app.revanced.$it" }) fcm++
+                    if (value in microgFcmActions) fcm++
                     var replacement = routes[value]
-                    if (original.type in cacheTypes && value in setOf("com.google.android.gms.appid", "com.google.android.gms.appid-no-backup", STORE, "$STORE-no-backup")) {
+                    // c() is the Binder descriptor; d() is the service action. Both
+                    // contain the same literal: redirect only d(), preserve c()/proxy.
+                    if (original.type == "Lacjh;" && method.name == "d" && method.parameterTypes.isEmpty() &&
+                        method.returnType == "Ljava/lang/String;" && value in setOf(FEEDBACK, "app.revanced.android.gms.feedback.internal.IFeedbackService")) {
+                        replacement = "app.revanced.android.gms.feedback.internal.IFeedbackService"
+                        feedbackActions++
+                    }
+                    if (original.type == "Lacct;" && value in setOf("com.google.android.gms.chimera", "app.revanced.android.gms.chimera")) chimeraAuthorities++
+                    if (original.type in cacheTypes && value in cacheNames) {
                         stores++; replacement = value.replace("com.google.android.gms.appid", STORE)
                     }
                     if (replacement != null && replacement != value) {
                         require(ins.opcode in setOf(Opcode.CONST_STRING, Opcode.CONST_STRING_JUMBO))
-                        method.replaceInstruction(index, BuilderInstruction31c(Opcode.CONST_STRING_JUMBO, (ins as OneRegisterInstruction).registerA, ImmutableStringReference(replacement)))
-                        if (value in names.map { "com.google.$it" }) fcm++
+                        val changes = edits ?: ArrayList<StringEdit>().also { edits = it }
+                        changes.add(StringEdit(index, (ins as OneRegisterInstruction).registerA, replacement))
+                        if (value in originalFcmActions) fcm++
                     }
                 }
-                if (original.type == "Labwk;" && method.name == "b" && method.parameterTypes.map { it.toString() } == listOf("Landroid/content/Context;", "I") && method.returnType == "I") {
-                    val existing = instructions.any { ((it as? ReferenceInstruction)?.reference as? MethodReference)?.definingClass == EXT }
-                    if (!existing) method.addInstructions(0, "invoke-static/range {p0 .. p0}, $EXT->availability(Landroid/content/Context;)I\nmove-result v0\nreturn v0")
-                    checks++
+                if (availability) checks++
+                // D() classifies account types with hashCode followed by equals.
+                // Changing only the equals literal makes microG take the fallback branch.
+                val classifier = original.type == "Lawrl;" && method.name == "D" &&
+                    method.parameterTypes.map { it.toString() } == listOf("Ljava/lang/String;") && method.returnType == "I"
+                if (edits == null && (!availability || existingHook) && !classifier) continue
+                val targetClass = mutable ?: mutableClassDefBy(original).also { mutable = it }
+                val target = targetClass.methods.single {
+                    it.name == method.name && it.returnType == method.returnType && it.parameterTypes == method.parameterTypes
                 }
+                if (classifier) {
+                    val hashInstructions = target.implementation!!.instructions.withIndex().filter {
+                        val ins = it.value
+                        ins.opcode == Opcode.CONST && (ins as? NarrowLiteralInstruction)?.narrowLiteral in
+                            setOf("com.google".hashCode(), "app.revanced".hashCode())
+                    }
+                    require(hashInstructions.size == 1) { "Gmail account classifier hash layout changed" }
+                    val hash = hashInstructions.single()
+                    target.replaceInstruction(hash.index, BuilderInstruction31i(Opcode.CONST,
+                        (hash.value as OneRegisterInstruction).registerA, "app.revanced".hashCode()))
+                    accountClassifiers++
+                }
+                // Replace in place before inserting the hook, so original indexes stay valid.
+                edits?.forEach { edit ->
+                    target.replaceInstruction(edit.index, BuilderInstruction31c(Opcode.CONST_STRING_JUMBO,
+                        edit.register, ImmutableStringReference(edit.value)))
+                }
+                if (availability && !existingHook) target.addInstructions(0,
+                    "invoke-static/range {p0 .. p0}, $EXT->availability(Landroid/content/Context;)I\nmove-result v0\nreturn v0")
             }
         }
+        require(accountClassifiers == 1) { "Gmail account classifier is missing" }
+        require(feedbackActions == 1 && chimeraAuthorities == 1) { "Gmail service discovery layout changed: feedback=$feedbackActions chimera=$chimeraAuthorities" }
         require(accounts == 237 && stores == 6 && authClass == 1 && checks == 1 && fcm > 0) { "Unexpected Gmail layout: account literals=$accounts cache literals=$stores GetToken class=$authClass checks=$checks FCM routes=$fcm. No APK should be installed." }
     }
 }
