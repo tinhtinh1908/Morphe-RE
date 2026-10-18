@@ -27,7 +27,7 @@ MPP đính kèm thông báo này, giấy phép GPL của nguồn và của dự 
 | Cơ chế GmsCore/microG, metadata `app.revanced.MICROG_PACKAGE_NAME`, namespace `app.revanced` | Tham chiếu tương thích giao thức; không kèm source/binary GmsCore trong MPP | [MicroG-RE 7.2.1](https://github.com/MorpheApp/MicroG-RE/tree/7.2.1), Apache-2.0; [microg/GmsCore](https://github.com/microg/GmsCore); [ReVanced patches](https://github.com/ReVanced/revanced-patches) GPL v3 |
 | Morphe patches | Nguồn tham khảo hệ sinh thái GmsCore; không tuyên bố toàn bộ mã FCM được chép từ dự án này | [MorpheApp/morphe-patches](https://github.com/MorpheApp/morphe-patches), GPL v3; NOTICE-morphe-patches được bảo toàn |
 
-Các thông tin DTinh ở bảng căn cứ lịch sử mã trong repo; không gán tác giả upstream cho những tệp không có chứng cứ sao chép. Với bản native có tệp gốc xác định, nguồn và sửa đổi được khai báo trực tiếp ở đầu tệp. Không có Gmail trong gói chính thức; nghiên cứu và bản vá Gmail chỉ ở kênh thử nghiệm `dev`.
+Các thông tin DTinh ở bảng căn cứ lịch sử mã trong repo; không gán tác giả upstream cho những tệp không có chứng cứ sao chép. Với bản native có tệp gốc xác định, nguồn và sửa đổi được khai báo trực tiếp ở đầu tệp. Từ 0.7.3, gói phát hành chứa bản vá Gmail do DTinh triển khai theo GPL-3.0-only (`src/gmail/`, `extension/vn/dtinh/gmail/`); đối chiếu giao thức MicroG-RE tại commit `66a2bbac7d88c3e038f1b047774fe2ae65534b6a` được ghi trong `docs/research-gmail.md`. Gmail vẫn được đánh dấu thử nghiệm. Không phân phối mã nhị phân Gmail hoặc microG trong MPP.
 
 ## Công cụ build, không phân phối trong MPP
 

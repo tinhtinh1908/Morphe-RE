@@ -14,7 +14,7 @@ with zipfile.ZipFile(build / "patch.jar") as source, zipfile.ZipFile(target, "w"
         if not name.endswith("/") and name != "META-INF/MANIFEST.MF":
             out.writestr(name, source.read(name))
     out.writestr("META-INF/MANIFEST.MF", manifest)
-    # Ship corresponding source inside this local test MPP; no GitHub upload needed.
+    # Include the corresponding source in every distributed MPP.
     files = [ROOT / "build.sh", ROOT / "VERSION", ROOT / "tools.lock.json", ROOT / "README.md"]
     files.extend(ROOT.glob("LICENSE*"))
     files.extend(ROOT.glob("NOTICE*"))
@@ -28,20 +28,22 @@ with zipfile.ZipFile(build / "patch.jar") as source, zipfile.ZipFile(target, "w"
         out.write(ROOT / name, name)
     for dex in (build / "patch-dex").glob("classes*.dex"):
         out.write(dex, dex.name)
-    for app in ("messenger", "zalo", "updates"):
+    for app in ("messenger", "zalo", "gmail", "updates"):
         out.write(build / f"extension-{app}-dex/classes.dex", f"extensions/{app}-fcm.dex")
 with zipfile.ZipFile(target) as archive:
     names = archive.namelist()
     assert set(n for n in names if n.startswith("extensions/")) == {
-        "extensions/messenger-fcm.dex", "extensions/zalo-fcm.dex", "extensions/updates-fcm.dex"}
-    # Gmail source may be archived for review; its compiled patch stays on dev.
-    assert not any("gmail" in n.lower() for n in names if not n.startswith("source/")), "Gmail must stay experimental"
+        "extensions/messenger-fcm.dex", "extensions/zalo-fcm.dex",
+        "extensions/gmail-fcm.dex", "extensions/updates-fcm.dex"}
     for name in ("LICENSE", "LICENSE-patches", "LICENSE-zeldris", "NOTICE-zeldris",
                  "NOTICE-morphe-patches", "NOTICE-update-blocking", "NOTICE-morphe-patcher", "THIRD_PARTY_NOTICES.md", "LICENSING.md"):
         assert archive.read(name) == (ROOT / name).read_bytes(), name
-    public_sources = [ROOT / "src/messenger/MessengerRepairPatch.kt",
+    public_sources = [ROOT / "src/gmail/GmailMicroGPatch.kt",
+                      ROOT / "src/gmail/GmailManifestPatch.kt",
+                      ROOT / "src/gmail/GmailRouting.kt",
+                      ROOT / "src/messenger/MessengerRepairPatch.kt",
                       ROOT / "src/zalo/ZaloMicroGPatch.kt",
                       ROOT / "src/zalo/BypassNativeStartupTamperPatch.kt"]
     assert all(p.exists() for p in public_sources)
-print("Bundle audit: PASS (Messenger/Zalo only; licenses and notices byte-exact)")
+print("Bundle audit: PASS (Messenger/Zalo + experimental Gmail; licenses and notices byte-exact)")
 print(target)

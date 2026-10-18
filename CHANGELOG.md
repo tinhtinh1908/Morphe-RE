@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.3
+
+- Thêm **Gmail qua microG (thử nghiệm)** vào gói phát hành; chỉ hỗ trợ Gmail 2026.09.21.992487546.Release, không chọn mặc định.
+- Dùng mã Gmail đã xử lý: chỉ tạo lớp có chỉnh sửa để giảm bộ nhớ khi vá; sửa chuyển hướng dịch vụ, phân loại tài khoản và quyền GServices. Giữ nguyên tên gói Gmail.
+- Gmail vẫn thử nghiệm; chưa bảo đảm đăng nhập, đồng bộ và thông báo ổn định trên mọi thiết bị. Cần APK hợp nhất đầy đủ các split.
+- Giữ các mục Messenger, Zalo, sửa lỗi Zalo tự thoát và chặn cập nhật CH Play của 0.7.2. Chặn cập nhật vẫn chỉ hỗ trợ Messenger/Zalo.
+- Kèm mã nguồn tương ứng, giấy phép, NOTICE và SHA-256.
+
 ## 0.7.2
 
 - Phát hành từ bản test 0.7.2-dev.2: bốn mục có tên và mô tả tiếng Việt ngắn gọn.

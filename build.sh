@@ -18,7 +18,7 @@ d8="$project/.tools/buildtools/android-15/lib/d8.jar"
 build="$project/build"
 rm -rf "$build/classes" "$build/patch-dex"
 mkdir -p "$build/classes" "$build/patch-dex" "$project/dist"
-for app in messenger zalo updates; do
+for app in messenger zalo gmail updates; do
     classes="$build/extension-$app-classes"
     dex="$build/extension-$app-dex"
     rm -rf "$classes" "$dex"
@@ -29,7 +29,7 @@ for app in messenger zalo updates; do
     "$JAVA_HOME/bin/jar" cf "$build/extension-$app.jar" -C "$classes" .
     "$JAVA_HOME/bin/java" -cp "$d8" com.android.tools.r8.D8 --min-api 28 --lib "$android" --output "$dex" "$build/extension-$app.jar"
 done
-"$JAVA_HOME/bin/java" -cp "$compiler:$fat:$annotations" org.jetbrains.kotlin.cli.jvm.K2JVMCompiler -no-stdlib -no-reflect -language-version 2.0 -jvm-target 11 -classpath "$fat:$annotations" -d "$build/classes" "$project/src/shared/MicroGRoute.kt" "$project/src/shared/DisablePlayStoreUpdates.kt" "$project/src/messenger/MessengerRepairPatch.kt" "$project/src/zalo/ZaloMicroGPatch.kt" "$project/src/zalo/BypassNativeStartupTamperPatch.kt"
+"$JAVA_HOME/bin/java" -cp "$compiler:$fat:$annotations" org.jetbrains.kotlin.cli.jvm.K2JVMCompiler -no-stdlib -no-reflect -language-version 2.0 -jvm-target 11 -classpath "$fat:$annotations" -d "$build/classes" "$project"/src/gmail/*.kt "$project/src/shared/MicroGRoute.kt" "$project/src/shared/DisablePlayStoreUpdates.kt" "$project/src/messenger/MessengerRepairPatch.kt" "$project/src/zalo/ZaloMicroGPatch.kt" "$project/src/zalo/BypassNativeStartupTamperPatch.kt"
 mkdir -p "$build/native-test"
 "$JAVA_HOME/bin/java" -cp "$compiler:$fat:$annotations" org.jetbrains.kotlin.cli.jvm.K2JVMCompiler -no-stdlib -no-reflect -language-version 2.0 -jvm-target 11 -classpath "$fat:$annotations" -d "$build/native-test" "$project/src/zalo/BypassNativeStartupTamperPatch.kt" "$project/tests/NativeTamperTest.kt"
 "$JAVA_HOME/bin/java" -cp "$build/native-test:$fat" vn.dtinh.patches.zalo.native.NativeTamperTestKt

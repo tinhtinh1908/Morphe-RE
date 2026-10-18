@@ -19,7 +19,7 @@ private data class StringEdit(val index: Int, val register: Int, val value: Stri
 
 val gmailMicroGSupport = bytecodePatch(
     name = "Gmail qua microG (thử nghiệm)",
-    description = "Đăng nhập và nhận thông báo qua MicroG-RE. Bản thử nghiệm, cần kiểm tra trên máy.",
+    description = "Thử nghiệm: đăng nhập và nhận thông báo qua MicroG-RE. Chỉ hỗ trợ Gmail 2026.09.21.992487546.Release.",
     default = false,
 ) {
     compatibleWith("com.google.android.gm"(VERSION))
