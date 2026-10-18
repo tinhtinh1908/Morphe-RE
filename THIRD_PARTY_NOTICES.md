@@ -63,3 +63,5 @@ MPP đóng kèm LICENSE, LICENSE-patches, LICENSE-zeldris, NOTICE-*, LICENSING.m
 
 
 Bản test 0.7.2-dev.2: DTinh Việt hóa tên/mô tả bốn mục, bỏ biến và import không dùng, bỏ thư mục build dư, tính trước tập tên FCM chuyển tuyến thay vì tạo lại ở mỗi lần so khớp. Logic Morphe và các hook đăng ký giữ nguyên.
+
+Cập nhật 0.7.3 ngày 18/10/2026: DTinh thêm Gmail `com.google.android.gm` phiên bản `2026.09.21.992487546.Release` vào danh sách tương thích của mục chặn cập nhật CH Play. Không đổi cơ chế mã phiên bản/helper Morphe; giữ nguyên giấy phép và khối NOTICE.

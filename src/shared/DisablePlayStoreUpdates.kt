@@ -26,6 +26,7 @@
 
 // SPDX-License-Identifier: GPL-3.0-only
 // Adapted by DTinh on 2026-10-14 for Patcher 1.14: selectable patch for Messenger/Zalo.
+// Gmail compatibility added by DTinh on 2026-10-18; helper behavior unchanged.
 // Keep original file notice above. Source commit: e5464395441e916b643af4e2175c4e253e6df487.
 package vn.dtinh.patches
 
@@ -92,7 +93,11 @@ val disablePlayStoreUpdatesPatch = bytecodePatch(
     description = "Giữ bản đã vá, không cho CH Play cập nhật. Có thể gây lỗi với một số ứng dụng.",
     default = false,
 ) {
-    compatibleWith("com.facebook.orca"("573.0.0.44.88"), "com.zing.zalo"("26.08.01"))
+    compatibleWith(
+        "com.facebook.orca"("573.0.0.44.88"),
+        "com.zing.zalo"("26.08.01"),
+        "com.google.android.gm"("2026.09.21.992487546.Release"),
+    )
     dependsOn(disableUpdatesManifest)
     extendWith("extensions/updates-fcm.dex")
     finalize {

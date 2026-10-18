@@ -29,7 +29,7 @@ public class UpdateRuntimeTest {
     static void check(boolean value) { if (!value) throw new AssertionError(); }
     public static void main(String[] args) {
         PackageInfo info = new PackageInfo();
-        for (String name : new String[] {"com.facebook.orca"}) {
+        for (String name : new String[] {"com.facebook.orca", "com.google.android.gm"}) {
             info.packageName = name;
             info.versionCode = Integer.MAX_VALUE;
             info.versionCodeMajor = 7;

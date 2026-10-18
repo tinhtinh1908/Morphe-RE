@@ -18,4 +18,4 @@ Build trên Linux/WSL với JDK 21 và Python 3.10+: đặt JAVA_HOME rồi ch�
 
 Chưa xác nhận thông báo, cài đặt và cập nhật CH Play trên thiết bị thực trong phiên phát hành này. Các báo cáo trong validation/ chỉ áp dụng đúng bản ghi trong từng báo cáo.
 
-Gmail là bản vá **thử nghiệm**, không chọn mặc định và chưa bảo đảm thông báo ổn định trên mọi máy. Giữ nguyên gói `com.google.android.gm`; dùng APK đã hợp nhất đầy đủ các split, không dùng riêng `base.apk`. Không hỗ trợ các phiên bản Gmail khác. Mục chặn cập nhật CH Play hiện chỉ hỗ trợ Messenger/Zalo.
+Gmail là bản vá **thử nghiệm**, không chọn mặc định và chưa bảo đảm thông báo ổn định trên mọi máy. Giữ nguyên gói `com.google.android.gm`; dùng APK đã hợp nhất đầy đủ các split, không dùng riêng `base.apk`. Không hỗ trợ các phiên bản Gmail khác. Mục chặn cập nhật CH Play hỗ trợ cả Messenger, Zalo và phiên bản Gmail nêu trên; chọn thêm mục này khi vá để giữ bản đã vá.

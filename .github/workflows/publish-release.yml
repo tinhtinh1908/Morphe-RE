@@ -32,6 +32,12 @@ jobs:
           prerelease = request.get("prerelease", False)
           assert isinstance(prerelease, bool) and prerelease == ("-dev." in version)
           assert re.fullmatch(r"[0-9a-f]{40}", target)
+          replace_existing = request.get("replace_existing", False)
+          assert isinstance(replace_existing, bool)
+          expected_target = request.get("expected_target", "")
+          if replace_existing:
+              assert re.fullmatch(r"[0-9a-f]{40}", expected_target)
+              assert expected_target != target
           def read(path):
               return subprocess.check_output(["git", "show", target + ":" + path])
           assert read("VERSION").decode().strip() == version
@@ -59,6 +65,8 @@ jobs:
               env.write("RELEASE_TAG=v" + version + "\n")
               env.write("RELEASE_PRERELEASE=" + str(prerelease).lower() + "\n")
               env.write("RELEASE_TARGET=" + target + "\n")
+              env.write("RELEASE_REPLACE=" + str(replace_existing).lower() + "\n")
+              env.write("RELEASE_EXPECTED_TARGET=" + expected_target + "\n")
               env.write("RELEASE_ASSET=dist/" + filename + "\n")
           PY
       - name: Publish release with MPP
@@ -67,7 +75,15 @@ jobs:
           GH_REPO: ${{ github.repository }}
         run: |
           if gh release view "$RELEASE_TAG" >/dev/null 2>&1; then
-            echo "Release already exists; leaving it unchanged."
+            if [ "$RELEASE_REPLACE" = "true" ]; then
+              current=$(gh api "repos/$GH_REPO/git/ref/tags/$RELEASE_TAG" --jq '.object.sha')
+              test "$current" = "$RELEASE_EXPECTED_TARGET"
+              gh release upload "$RELEASE_TAG" dist/* --clobber
+              gh api --method PATCH "repos/$GH_REPO/git/refs/tags/$RELEASE_TAG" -f sha="$RELEASE_TARGET" -F force=true >/dev/null
+              gh release edit "$RELEASE_TAG" --notes-file release-notes.md
+            else
+              echo "Release already exists; leaving it unchanged."
+            fi
           else
             if [ "$RELEASE_PRERELEASE" = "true" ]; then
               gh release create "$RELEASE_TAG" dist/* --target "$RELEASE_TARGET" --title "DTinh MicroG FCM $RELEASE_TAG (Experimental)" --notes-file release-notes.md --prerelease --latest=false
@@ -92,7 +108,7 @@ jobs:
           metadata = {
               "version": version,
               "download_url": asset["browser_download_url"],
-              "created_at": release["published_at"].removesuffix("Z"),
+              "created_at": (release["updated_at"] if os.environ["RELEASE_REPLACE"] == "true" else release["published_at"]).removesuffix("Z"),
               "description": release["body"] or "",
               "page_url": release["html_url"],
           }
