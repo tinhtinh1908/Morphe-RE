@@ -1,7 +1,5 @@
 {
-  "version": "0.7.3",
-  "target": "78c399cc0beb6cea8387b982f702156df1031772",
-  "prerelease": false,
-  "replace_existing": true,
-  "expected_target": "e6f42bf8ac22ea7c8df761ce2c1324220422c863"
+  "version": "0.7.4",
+  "target": "41c6b125279f3dc5212a3a980b611561431a0b80",
+  "prerelease": false
 }
