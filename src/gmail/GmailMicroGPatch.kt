@@ -18,8 +18,8 @@ import app.morphe.patcher.util.proxy.mutableTypes.MutableClass
 private data class StringEdit(val index: Int, val register: Int, val value: String)
 
 val gmailMicroGSupport = bytecodePatch(
-    name = "Gmail qua microG (thử nghiệm)",
-    description = "Thử nghiệm: đăng nhập và nhận thông báo qua MicroG-RE. Chỉ hỗ trợ Gmail 2026.09.21.992487546.Release.",
+    name = "Gmail qua microG",
+    description = "Đăng nhập và nhận thông báo qua MicroG-RE. Chỉ hỗ trợ Gmail 2026.09.21.992487546.Release.",
     default = false,
 ) {
     compatibleWith("com.google.android.gm"(VERSION))

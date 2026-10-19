@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.4
+
+- Thêm **Thông báo Facebook qua microG**, hỗ trợ Facebook 573.0.0.37.74; dùng mã dev.2 đã được người dùng xác nhận hoạt động.
+- Sửa xung đột cài chung Messenger và Facebook: tách hai quyền chữ ký dùng chung trong manifest và DEX theo tên gói riêng. Giữ nguyên mức bảo vệ quyền, tên gói, thành phần và provider authority. Áp dụng khi chọn bản vá thông báo tương ứng; cần vá lại ứng dụng còn dùng bản cũ nếu gặp lỗi cài đặt.
+- Bỏ nhãn **thử nghiệm** khỏi tên và mô tả Gmail qua microG. Chỉ hỗ trợ Gmail 2026.09.21.992487546.Release; dùng APK đã hợp nhất đầy đủ các split.
+- Giữ các bản vá Messenger, Zalo, sửa lỗi Zalo tự thoát và chặn cập nhật CH Play. Chặn cập nhật hỗ trợ cả Facebook, Messenger, Zalo và Gmail ở đúng phiên bản được liệt kê.
+- Kèm mã nguồn tương ứng, giấy phép, NOTICE và SHA-256.
+
 ## 0.7.3
 
 - Thêm **Gmail qua microG (thử nghiệm)** vào gói phát hành; chỉ hỗ trợ Gmail 2026.09.21.992487546.Release, không chọn mặc định.

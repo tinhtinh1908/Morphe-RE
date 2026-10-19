@@ -41,13 +41,15 @@ private var hasExistingRoute = false
 
 // Resource dependency is unnamed so the user selects one public patch only.
 private val manifestPatch = resourcePatch {
+    dependsOn(metaCoexistenceManifest)
 
 
     execute {
         val original = packageMetadata.packageName
         require((original == "com.facebook.orca" && packageMetadata.versionName == "573.0.0.44.88") ||
-            (original == "com.zing.zalo" && packageMetadata.versionName == "26.08.01")) {
-            "Only the supported Messenger and Zalo versions have dedicated patches."
+            (original == "com.zing.zalo" && packageMetadata.versionName == "26.08.01") ||
+            (original == "com.facebook.katana" && packageMetadata.versionName == "573.0.0.37.74")) {
+            "Only the supported Facebook, Messenger and Zalo versions have dedicated patches."
         }
         require(original != "com.google.android.gms" && original != MICROG) {
             "Patch a CLIENT app, not Google Play services or MicroG."
@@ -135,7 +137,7 @@ private val manifestPatch = resourcePatch {
 
 // Internal routing dependency. Only the two version-scoped app patches are selectable.
 internal val microGRoutingDependency = bytecodePatch(default = false) {
-    dependsOn(manifestPatch)
+    dependsOn(manifestPatch, metaCoexistence)
     execute {
         var strings = 0
         var fields = 0
@@ -145,6 +147,10 @@ internal val microGRoutingDependency = bytecodePatch(default = false) {
         var existingFcmRoutes = 0
         classDefForEach { original ->
             if (original.type.startsWith("Lcom/google/firebase/messaging/")) hasFirebaseMessaging = true
+            // Facebook 573: verified IID transport, action tables and receive consumers only.
+            if (packageMetadata.packageName == "com.facebook.katana" &&
+                !(original.type.startsWith("Lcom/google/firebase/") || original.type in setOf(
+                    "LX/1eN;", "LX/1fi;", "LX/1fs;", "LX/1fu;", "LX/cd1;", "LX/fAd;", "LX/19g;", "LX/6I6;", "LX/7Zj;", "LX/8cE;"))) return@classDefForEach
             // Zalo 26.08.01: restrict changes to its verified FCM transport and SDK helpers.
             // Already routed input may contain changes from older bundles outside this scope;
             // preserve them instead of guessing how another patch configured auth/ads/ML APIs.
@@ -209,6 +215,6 @@ internal val microGRoutingDependency = bytecodePatch(default = false) {
         if (hasExistingRoute && strings + fields == 0) log.info("Existing microG FCM route verified; original spoofed signature preserved.")
         log.info("DEX: $strings literals, $fields static fields, $fcmRoutes FCM routes, $checks known availability checks patched")
         if (checks == 0) log.warning("No known availability fingerprint found. Runtime GMS signature checks may still reject MicroG.")
-        log.warning("Experimental: a successful patch does not confirm FCM token registration or push delivery.")
+        log.warning("Vá thành công; cần mở ứng dụng để đăng ký và kiểm tra nhận thông báo qua microG.")
     }
 }

@@ -1,21 +1,50 @@
-# DTinh — Bản vá thông báo
+# DTinh MicroG FCM Patches
 
-Bản phát hành **0.7.3** gồm Messenger, Zalo và **Gmail thử nghiệm**.
+Bộ bản vá Morphe chuyển các luồng xác thực và thông báo được hỗ trợ sang **MicroG-RE** (`app.revanced.android.gms`). Phiên bản: **0.7.4**.
 
-| Mục chọn | Chức năng |
-| --- | --- |
-| Thông báo Messenger qua microG | Nhận thông báo qua MicroG-RE; Messenger 573.0.0.44.88 |
-| Thông báo Zalo qua microG | Nhận thông báo qua MicroG-RE; Zalo 26.08.01 |
-| Gmail qua microG (thử nghiệm) | Đăng nhập và nhận thông báo qua MicroG-RE; Gmail 2026.09.21.992487546.Release |
-| Chặn cập nhật CH Play | Mục riêng, tùy chọn; giữ bản đã vá bằng cơ chế mã phiên bản của Morphe |
-| Sửa lỗi Zalo tự thoát | Bỏ kiểm tra chống chỉnh sửa khi mở; Zalo 26.08.01 ARM64 |
+## Tương thích
 
-[Tải bản phát hành](https://github.com/tinhtinh1908/Morphe-RE/releases/tag/v0.7.3). Nhập MPP hoặc cập nhật nguồn repo trong Manager. Cài MicroG-RE và đăng nhập ứng dụng để dùng bản vá thông báo. Không chọn trùng mục chặn cập nhật từ nguồn Morphe khác. Mục này không chặn lời nhắc cập nhật nội bộ và không dùng cho cài bằng root mount.
+| Ứng dụng | Package | Phiên bản hỗ trợ |
+| --- | --- | --- |
+| Facebook | `com.facebook.katana` | `573.0.0.37.74` |
+| Messenger | `com.facebook.orca` | `573.0.0.44.88` |
+| Zalo | `com.zing.zalo` | `26.08.01` |
+| Gmail | `com.google.android.gm` | `2026.09.21.992487546.Release` |
 
-Nguồn và giấy phép: THIRD_PARTY_NOTICES.md, LICENSING.md, LICENSE-patches và NOTICE-*. Giữ nguyên ghi công Morphe/ReVanced/Zeldris. Release đính kèm source ZIP và SHA-256; MPP cũng chứa mã nguồn trong `source/`.
+Mỗi ứng dụng có một bản vá thông báo riêng, không chọn mặc định. Hai mục bổ sung:
 
-Build trên Linux/WSL với JDK 21 và Python 3.10+: đặt JAVA_HOME rồi chạy `bash build.sh`. Công cụ tải theo tools.lock.json và kiểm tra SHA-256. Kiểm thử policy đăng ký, native Zalo, chỉnh DEX đọc mã phiên bản, helper runtime và audit gói được chạy khi build.
+- **Chặn cập nhật CH Play:** tăng versionCode theo cơ chế Morphe; hỗ trợ bốn phiên bản trên. Không dùng khi cài bằng root mount.
+- **Sửa lỗi Zalo tự thoát:** bỏ kiểm tra native khi khởi động Zalo 26.08.01 ARM64.
 
-Chưa xác nhận thông báo, cài đặt và cập nhật CH Play trên thiết bị thực trong phiên phát hành này. Các báo cáo trong validation/ chỉ áp dụng đúng bản ghi trong từng báo cáo.
+## Sử dụng
 
-Gmail là bản vá **thử nghiệm**, không chọn mặc định và chưa bảo đảm thông báo ổn định trên mọi máy. Giữ nguyên gói `com.google.android.gm`; dùng APK đã hợp nhất đầy đủ các split, không dùng riêng `base.apk`. Không hỗ trợ các phiên bản Gmail khác. Mục chặn cập nhật CH Play hỗ trợ cả Messenger, Zalo và phiên bản Gmail nêu trên; chọn thêm mục này khi vá để giữ bản đã vá.
+1. Cài MicroG-RE và Morphe Manager.
+2. Thêm nguồn `https://github.com/tinhtinh1908/Morphe-RE` hoặc nhập MPP từ [Releases](https://github.com/tinhtinh1908/Morphe-RE/releases/latest).
+3. Chọn đúng APK và bản vá thông báo tương ứng. Gmail cần APK đã hợp nhất đủ các split.
+4. Cài APK đầu ra, mở ứng dụng và đăng nhập. Kiểm tra đăng ký trong Cloud Messaging của microG và thử nhận thông báo.
+
+Facebook/Messenger tách hai quyền chữ ký dùng chung để tránh xung đột cài đặt. Nếu bản cũ còn gây xung đột, vá lại ứng dụng báo lỗi bằng 0.7.4. Khi cập nhật APK đã ký lại, dùng cùng khóa ký với bản đã cài.
+
+## Build
+
+Yêu cầu Linux/WSL, **JDK 21**, Python **3.10+**; Morphe Patcher API **1.14.0** trở lên.
+
+```sh
+export JAVA_HOME=/path/to/jdk-21
+bash build.sh
+```
+
+Đầu ra: `dist/DTinh-MicroG-FCM-0.7.4.mpp`. Dependencies được ghim phiên bản và SHA-256 trong `tools.lock.json`; build tự chạy các kiểm thử nội bộ và audit gói.
+
+## Tài liệu
+
+- [Kiến trúc và phạm vi chỉnh sửa](docs/architecture.md)
+- [Kiểm thử và xác minh APK](docs/testing.md)
+- [Lịch sử phát hành](CHANGELOG.md)
+- [Báo cáo kiểm chứng](validation/)
+
+Build thành công không thay thế kiểm tra đăng nhập, đồng bộ và nhận push trên thiết bị. Báo lỗi cần kèm phiên bản app, Manager, nguồn bản vá và log của lần lỗi.
+
+## Giấy phép
+
+Xem [LICENSING.md](LICENSING.md), [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md), `LICENSE*` và `NOTICE*`. MPP chứa nguồn tương ứng trong `source/`; release đính kèm source ZIP và SHA-256. Không phân phối APK của ứng dụng đích trong gói.

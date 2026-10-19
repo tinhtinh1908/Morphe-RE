@@ -97,6 +97,7 @@ val disablePlayStoreUpdatesPatch = bytecodePatch(
         "com.facebook.orca"("573.0.0.44.88"),
         "com.zing.zalo"("26.08.01"),
         "com.google.android.gm"("2026.09.21.992487546.Release"),
+        "com.facebook.katana"("573.0.0.37.74"),
     )
     dependsOn(disableUpdatesManifest)
     extendWith("extensions/updates-fcm.dex")

@@ -49,7 +49,7 @@ private val repairManifest = resourcePatch {
 
 val messengerMicroGRepair = bytecodePatch(
     name = "Thông báo Messenger qua microG",
-    description = "Nhận thông báo qua MicroG-RE. Cần cài MicroG-RE và đăng nhập.",
+    description = "Nhận thông báo qua MicroG-RE. Sửa xung đột cài chung Facebook; cần đăng nhập.",
     default = false,
 ) {
     compatibleWith("com.facebook.orca"("573.0.0.44.88"))

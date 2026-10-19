@@ -27,7 +27,7 @@ MPP đính kèm thông báo này, giấy phép GPL của nguồn và của dự 
 | Cơ chế GmsCore/microG, metadata `app.revanced.MICROG_PACKAGE_NAME`, namespace `app.revanced` | Tham chiếu tương thích giao thức; không kèm source/binary GmsCore trong MPP | [MicroG-RE 7.2.1](https://github.com/MorpheApp/MicroG-RE/tree/7.2.1), Apache-2.0; [microg/GmsCore](https://github.com/microg/GmsCore); [ReVanced patches](https://github.com/ReVanced/revanced-patches) GPL v3 |
 | Morphe patches | Nguồn tham khảo hệ sinh thái GmsCore; không tuyên bố toàn bộ mã FCM được chép từ dự án này | [MorpheApp/morphe-patches](https://github.com/MorpheApp/morphe-patches), GPL v3; NOTICE-morphe-patches được bảo toàn |
 
-Các thông tin DTinh ở bảng căn cứ lịch sử mã trong repo; không gán tác giả upstream cho những tệp không có chứng cứ sao chép. Với bản native có tệp gốc xác định, nguồn và sửa đổi được khai báo trực tiếp ở đầu tệp. Từ 0.7.3, gói phát hành chứa bản vá Gmail do DTinh triển khai theo GPL-3.0-only (`src/gmail/`, `extension/vn/dtinh/gmail/`); đối chiếu giao thức MicroG-RE tại commit `66a2bbac7d88c3e038f1b047774fe2ae65534b6a` được ghi trong `docs/research-gmail.md`. Gmail vẫn được đánh dấu thử nghiệm. Không phân phối mã nhị phân Gmail hoặc microG trong MPP.
+Các thông tin DTinh ở bảng căn cứ lịch sử mã trong repo; không gán tác giả upstream cho những tệp không có chứng cứ sao chép. Với bản native có tệp gốc xác định, nguồn và sửa đổi được khai báo trực tiếp ở đầu tệp. Từ 0.7.3, gói phát hành chứa bản vá Gmail do DTinh triển khai theo GPL-3.0-only (`src/gmail/`, `extension/vn/dtinh/gmail/`); đối chiếu giao thức MicroG-RE tại commit `66a2bbac7d88c3e038f1b047774fe2ae65534b6a` được ghi trong `docs/architecture.md`. Từ 0.7.4, Gmail không còn nhãn thử nghiệm; phạm vi tương thích vẫn giới hạn theo phiên bản. Không phân phối mã nhị phân Gmail hoặc microG trong MPP.
 
 ## Công cụ build, không phân phối trong MPP
 
@@ -65,3 +65,5 @@ MPP đóng kèm LICENSE, LICENSE-patches, LICENSE-zeldris, NOTICE-*, LICENSING.m
 Bản test 0.7.2-dev.2: DTinh Việt hóa tên/mô tả bốn mục, bỏ biến và import không dùng, bỏ thư mục build dư, tính trước tập tên FCM chuyển tuyến thay vì tạo lại ở mỗi lần so khớp. Logic Morphe và các hook đăng ký giữ nguyên.
 
 Cập nhật 0.7.3 ngày 18/10/2026: DTinh thêm Gmail `com.google.android.gm` phiên bản `2026.09.21.992487546.Release` vào danh sách tương thích của mục chặn cập nhật CH Play. Không đổi cơ chế mã phiên bản/helper Morphe; giữ nguyên giấy phép và khối NOTICE.
+
+Bản thử 0.7.4-dev.1: `src/facebook/FacebookMicroGPatch.kt`, `src/shared/MetaCoexistence.kt` và `extension/vn/dtinh/facebook/` do DTinh triển khai, GPL-3.0-only. Tái sử dụng policy retry của dự án; không đóng gói APK Facebook/Messenger hoặc mã nguồn ứng dụng sở hữu riêng. Chỉ thêm Facebook vào danh sách tương thích của bản chuyển chặn cập nhật Morphe; giữ nguyên NOTICE upstream.

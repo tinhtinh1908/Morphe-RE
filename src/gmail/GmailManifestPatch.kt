@@ -7,7 +7,7 @@ import java.security.MessageDigest
 
 internal val gmailManifest = resourcePatch {
     execute {
-        require(packageMetadata.packageName == "com.google.android.gm" && packageMetadata.versionName == VERSION) { "Gmail version not supported by this experimental patch." }
+        require(packageMetadata.packageName == "com.google.android.gm" && packageMetadata.versionName == VERSION) { "Chỉ hỗ trợ Gmail 2026.09.21.992487546.Release." }
         document("AndroidManifest.xml").use { doc ->
             val root = doc.documentElement
             require(root.getAttribute("android:requiredSplitTypes").isEmpty()) { "Gmail needs its ABI/density splits. Merge the complete APKS before patching; base.apk alone is unsupported." }
