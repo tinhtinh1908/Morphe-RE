@@ -1,7 +1,7 @@
 {
-  "version": "0.7.0-dev.2",
-  "download_url": "https://github.com/tinhtinh1908/Morphe-RE/releases/download/v0.7.0-dev.2/DTinh-MicroG-FCM-0.7.0-dev.2.mpp",
-  "created_at": "2026-10-08T12:44:19",
-  "description": "- Thêm bản vá native riêng cho Zalo 26.08.01 ARM64 từ zeldrisho/morphe-patches (GPL v3); chọn độc lập với microG.\n- Chấp nhận APK đã vá các vị trí native; vẫn kiểm tra toàn bộ vị trí trước khi ghi.\n- Chuyển toàn bộ mô tả bản vá sang tiếng Việt.\n- Đính kèm giấy phép và nguồn trong MPP. Chưa kiểm thử khởi động trên thiết bị.\n\n# Changelog\n\nChọn bản vá riêng cho ứng dụng trong Morphe Manager. Xem thư mục validation tại commit phát hành để biết phạm vi kiểm chứng. Nhận push/đăng nhập thực tế cần kiểm tra trên thiết bị.\n",
-  "page_url": "https://github.com/tinhtinh1908/Morphe-RE/releases/tag/v0.7.0-dev.2"
+  "version": "0.7.4",
+  "download_url": "https://github.com/tinhtinh1908/Morphe-RE/releases/download/v0.7.4/DTinh-MicroG-FCM-0.7.4.mpp",
+  "created_at": "2026-10-19T09:47:31",
+  "description": "- Thêm **Thông báo Facebook qua microG**, hỗ trợ Facebook 573.0.0.37.74; dùng mã dev.2 đã được người dùng xác nhận hoạt động.\n- Sửa xung đột cài chung Messenger và Facebook: tách hai quyền chữ ký dùng chung trong manifest và DEX theo tên gói riêng. Giữ nguyên mức bảo vệ quyền, tên gói, thành phần và provider authority. Áp dụng khi chọn bản vá thông báo tương ứng; cần vá lại ứng dụng còn dùng bản cũ nếu gặp lỗi cài đặt.\n- Bỏ nhãn **thử nghiệm** khỏi tên và mô tả Gmail qua microG. Chỉ hỗ trợ Gmail 2026.09.21.992487546.Release; dùng APK đã hợp nhất đầy đủ các split.\n- Giữ các bản vá Messenger, Zalo, sửa lỗi Zalo tự thoát và chặn cập nhật CH Play. Chặn cập nhật hỗ trợ cả Facebook, Messenger, Zalo và Gmail ở đúng phiên bản được liệt kê.\n- Kèm mã nguồn tương ứng, giấy phép, NOTICE và SHA-256.\n\nNguồn tương ứng: tải tệp source.zip trong Assets hoặc xem commit 41c6b125279f3dc5212a3a980b611561431a0b80. Nguồn/giấy phép: THIRD_PARTY_NOTICES.md và LICENSING.md trong Assets, source và MPP. Gmail hỗ trợ phiên bản 2026.09.21.992487546.Release; dùng APK đã hợp nhất đầy đủ các split.\n\nChọn bản vá riêng cho ứng dụng trong Morphe Manager. Xem thư mục validation tại commit phát hành để biết phạm vi kiểm chứng. Nhận push/đăng nhập thực tế cần kiểm tra trên thiết bị.\n",
+  "page_url": "https://github.com/tinhtinh1908/Morphe-RE/releases/tag/v0.7.4"
 }
