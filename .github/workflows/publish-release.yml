@@ -113,19 +113,32 @@ jobs:
               "page_url": release["html_url"],
           }
           content = json.dumps(metadata, ensure_ascii=False, indent=2) + "\n"
-          branch = "dev" if release["prerelease"] else "main"
+          def version_key(value):
+              import re
+              match = re.fullmatch(r"(\d+)\.(\d+)\.(\d+)(?:-dev\.(\d+))?", value)
+              if not match:
+                  raise ValueError("Unsupported source version: " + value)
+              major, minor, patch, dev = match.groups()
+              return (int(major), int(minor), int(patch), dev is None, int(dev or 0))
+          # Stable releases also advance dev, unless it already advertises a newer build.
+          branches = ["dev"] if release["prerelease"] else ["main", "dev"]
           endpoint = "repos/" + repo + "/contents/patches-bundle.json"
-          existing = subprocess.run(["gh", "api", endpoint + "?ref=" + branch], capture_output=True, text=True)
-          payload = {"message": "Update Morphe Manager source metadata for " + tag, "branch": branch, "content": base64.b64encode(content.encode()).decode()}
-          if existing.returncode == 0:
-              current = json.loads(existing.stdout)
-              if base64.b64decode(current["content"]).decode() == content:
-                  print("Manager metadata already up to date.")
-                  raise SystemExit(0)
-              payload["sha"] = current["sha"]
-          else:
-              assert "404" in existing.stderr, existing.stderr
-          Path("metadata-request.json").write_text(json.dumps(payload))
-          subprocess.run(["gh", "api", "--method", "PUT", endpoint, "--input", "metadata-request.json"], check=True, stdout=subprocess.DEVNULL)
-          print("Manager source metadata published.")
+          for branch in branches:
+              existing = subprocess.run(["gh", "api", endpoint + "?ref=" + branch], capture_output=True, text=True)
+              payload = {"message": "Update Morphe Manager source metadata for " + tag, "branch": branch, "content": base64.b64encode(content.encode()).decode()}
+              if existing.returncode == 0:
+                  current = json.loads(existing.stdout)
+                  current_content = base64.b64decode(current["content"]).decode()
+                  if version_key(json.loads(current_content)["version"]) > version_key(version):
+                      print("Keeping newer source metadata on " + branch)
+                      continue
+                  if current_content == content:
+                      print("Manager metadata already up to date on " + branch)
+                      continue
+                  payload["sha"] = current["sha"]
+              else:
+                  assert "404" in existing.stderr, existing.stderr
+              Path("metadata-request.json").write_text(json.dumps(payload))
+              subprocess.run(["gh", "api", "--method", "PUT", endpoint, "--input", "metadata-request.json"], check=True, stdout=subprocess.DEVNULL)
+              print("Manager source metadata published on " + branch)
           PY

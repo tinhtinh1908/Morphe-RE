@@ -19,9 +19,17 @@ Mỗi ứng dụng có một bản vá thông báo riêng, không chọn mặc �
 ## Sử dụng
 
 1. Cài MicroG-RE và Morphe Manager.
-2. Thêm nguồn `https://github.com/tinhtinh1908/Morphe-RE` hoặc nhập MPP từ [Releases](https://github.com/tinhtinh1908/Morphe-RE/releases/latest).
+2. Thêm nguồn bằng [liên kết mở Morphe](https://morphe.software/add-source?github=tinhtinh1908/Morphe-RE&name=DTinh%20MicroG%20FCM), hoặc dán URL metadata bên dưới vào mục nguồn từ URL. Có thể nhập MPP từ [Releases](https://github.com/tinhtinh1908/Morphe-RE/releases/latest).
+
+   ```text
+   https://raw.githubusercontent.com/tinhtinh1908/Morphe-RE/main/patches-bundle.json
+   ```
+
+   Manager cũng nhận URL repo `https://github.com/tinhtinh1908/Morphe-RE`. Không dùng URL trang release, thư mục con hoặc tệp MPP trong ô nguồn metadata.
 3. Chọn đúng APK và bản vá thông báo tương ứng. Gmail cần APK đã hợp nhất đủ các split.
 4. Cài APK đầu ra, mở ứng dụng và đăng nhập. Kiểm tra đăng ký trong Cloud Messaging của microG và thử nhận thông báo.
+
+Nếu nguồn hiện “Chưa có tên”, “Không có metadata” và 0 bản vá, nhấn cập nhật nguồn. Nếu vẫn lỗi, thêm lại bằng URL metadata ở trên; mở menu báo lỗi của nguồn để lấy log tải (URL, HTTP và lỗi phân tích). Tắt “Bản vá phát hành trước” để dùng kênh ổn định.
 
 Facebook/Messenger tách hai quyền chữ ký dùng chung để tránh xung đột cài đặt. Nếu bản cũ còn gây xung đột, vá lại ứng dụng báo lỗi bằng 0.7.4. Khi cập nhật APK đã ký lại, dùng cùng khóa ký với bản đã cài.
 
